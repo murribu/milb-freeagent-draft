@@ -1,20 +1,43 @@
 import React from "react";
-import { Route, Switch } from "react-router-dom";
+import { Route, Switch, Redirect } from "react-router-dom";
 
-class AuthComponent extends React.Component {
-  render() {
-    return <div>AuthComponent Section</div>;
-  }
-}
+import AuthComponent from "./AuthComponent";
 
-const Routes = () => (
+const ProtectedRoute = ({ render: C, props: childProps, ...rest }) => (
+  <Route
+    {...rest}
+    render={rProps =>
+      childProps.isLoggedIn ? (
+        <C {...rProps} {...childProps} />
+      ) : (
+        <Redirect
+          to={`/auth?redirect=${childProps.location.pathname}${
+            childProps.location.search
+          }`}
+        />
+      )
+    }
+  />
+);
+
+const ProppedRoute = ({ render: C, props: childProps, ...rest }) => (
+  <Route {...rest} render={rProps => <C {...rProps} {...childProps} />} />
+);
+
+const Routes = ({ childProps }) => (
   <Switch>
     <Route exact path="/" render={() => <div>Home</div>} />
-    <Route exact path="/auth" render={AuthComponent} />
-    <Route
+    <ProppedRoute
+      exact
+      path="/auth"
+      component={AuthComponent}
+      props={childProps}
+    />
+    <ProtectedRoute
       exact
       path="/secret"
       render={() => <div>Keep it secret! Keep it safe!</div>}
+      props={childProps}
     />
     <Route exact path="/about" render={() => <div>About Content</div>} />
   </Switch>

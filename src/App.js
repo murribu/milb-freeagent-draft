@@ -34,13 +34,31 @@ const client = new AWSAppSyncClient({
 });
 
 class App extends React.Component {
+  state = {
+    authState: {
+      isLoggedIn: true
+    }
+  };
+  handleUserSignIn = () => {
+    this.setState({ authState: { isLoggedIn: true } });
+  };
+
   render() {
+    const childProps = {
+      isLoggedIn: this.state.authState.isLoggedIn,
+      onUserSignIn: this.handleUserSignIn
+    };
     return (
       <div className="App">
         <h1>Yo!</h1>
         <HeaderLinks />
+        <div>
+          {this.state.authState.isLoggedIn
+            ? "User is Logged In"
+            : "Not Logged In"}
+        </div>
         <br />
-        <Routes />
+        <Routes childProps={childProps} />
       </div>
     );
   }
