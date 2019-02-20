@@ -14,6 +14,8 @@ import awsconfig from "./aws-exports";
 import HeaderLinks from "./Components/HeaderLinks";
 import Routes from "./Components/Routes";
 
+import config from "./config";
+
 // Amplify init
 Amplify.configure(awsconfig);
 
@@ -45,6 +47,44 @@ class App extends React.Component {
   handleUserSignOut = () => {
     this.setState({ authState: { isLoggedIn: false } });
   };
+
+  async componentDidMount() {
+    this.loadFacebookSDK();
+
+    try {
+      await Auth.currentAuthenticatedUser();
+      this.userHasAuthenticated(true);
+    } catch (e) {
+      if (e !== "not authenticated") {
+        alert(e);
+      }
+    }
+
+    this.setState({ isAuthenticating: false });
+  }
+
+  loadFacebookSDK() {
+    window.fbAsyncInit = function() {
+      window.FB.init({
+        appId: config.facebookID,
+        autoLogAppEvents: true,
+        xfbml: true,
+        version: "v3.1"
+      });
+    };
+
+    (function(d, s, id) {
+      var js,
+        fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) {
+        return;
+      }
+      js = d.createElement(s);
+      js.id = id;
+      js.src = "https://connect.facebook.net/en_US/sdk.js";
+      fjs.parentNode.insertBefore(js, fjs);
+    })(document, "script", "facebook-jssdk");
+  }
 
   render() {
     const childProps = {

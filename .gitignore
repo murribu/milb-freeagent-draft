@@ -1,6 +1,8 @@
 node_modules/
 amplify
 
+config.js
+
 #amplify
 amplify/\#current-cloud-backend
 amplify/.config/local-*
