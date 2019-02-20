@@ -2,6 +2,7 @@ import React from "react";
 import { Route, Switch, Redirect } from "react-router-dom";
 
 import AuthComponent from "./AuthComponent";
+import Secret from "./Secret";
 
 const ProtectedRoute = ({ render: C, props: childProps, ...rest }) => (
   <Route
@@ -20,12 +21,28 @@ const ProtectedRoute = ({ render: C, props: childProps, ...rest }) => (
   />
 );
 
-const AuthRoute = ({ render: C, props: childProps, ...rest }) =>
-  childProps.isLoggedIn ? (
-    <Redirect to={`/`} />
+const AuthRoute = ({ render: C, props: childProps, ...rest }) => {
+  return childProps.isLoggedIn ? (
+    <Route
+      path="/auth"
+      component={({ location }) => {
+        return (
+          <Redirect
+            to={{
+              pathname: `${
+                location.search.substring(1).split("=").length > 1
+                  ? location.search.substring(1).split("=")[1]
+                  : `/`
+              }`
+            }}
+          />
+        );
+      }}
+    />
   ) : (
     <Route {...rest} render={rProps => <C {...rProps} {...childProps} />} />
   );
+};
 
 const ProppedRoute = ({ render: C, props: childProps, ...rest }) => (
   <Route {...rest} render={rProps => <C {...rProps} {...childProps} />} />
@@ -34,18 +51,8 @@ const ProppedRoute = ({ render: C, props: childProps, ...rest }) => (
 const Routes = ({ childProps }) => (
   <Switch>
     <Route exact path="/" render={() => <div>Home</div>} />
-    <ProppedRoute
-      exact
-      path="/auth"
-      render={AuthComponent}
-      props={childProps}
-    />
-    <ProtectedRoute
-      exact
-      path="/secret"
-      render={() => <div>Keep it secret! Keep it safe!</div>}
-      props={childProps}
-    />
+    <AuthRoute exact path="/auth" render={AuthComponent} props={childProps} />
+    <ProtectedRoute exact path="/secret" render={Secret} props={childProps} />
     <Route exact path="/about" render={() => <div>About Content</div>} />
   </Switch>
 );

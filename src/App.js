@@ -13,7 +13,6 @@ import awsconfig from "./aws-exports";
 
 import HeaderLinks from "./Components/HeaderLinks";
 import Routes from "./Components/Routes";
-import Greeting from "./Components/Greeting";
 
 // Amplify init
 Amplify.configure(awsconfig);
