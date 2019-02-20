@@ -3,6 +3,8 @@ import { Route, Switch, Redirect } from "react-router-dom";
 
 import AuthComponent from "./AuthComponent";
 import Secret from "./Secret";
+import HomeComponent from "./HomeComponent";
+import AboutComponent from "./AboutComponent";
 
 const ProtectedRoute = ({ render: C, props: childProps, ...rest }) => (
   <Route
@@ -50,10 +52,15 @@ const ProppedRoute = ({ render: C, props: childProps, ...rest }) => (
 
 const Routes = ({ childProps }) => (
   <Switch>
-    <Route exact path="/" render={() => <div>Home</div>} />
+    <ProppedRoute exact path="/" render={HomeComponent} props={childProps} />
     <AuthRoute exact path="/auth" render={AuthComponent} props={childProps} />
     <ProtectedRoute exact path="/secret" render={Secret} props={childProps} />
-    <Route exact path="/about" render={() => <div>About Content</div>} />
+    <ProppedRoute
+      exact
+      path="/about"
+      render={AboutComponent}
+      props={childProps}
+    />
   </Switch>
 );
 
