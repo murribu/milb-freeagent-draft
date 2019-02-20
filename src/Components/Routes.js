@@ -11,14 +11,21 @@ const ProtectedRoute = ({ render: C, props: childProps, ...rest }) => (
         <C {...rProps} {...childProps} />
       ) : (
         <Redirect
-          to={`/auth?redirect=${childProps.location.pathname}${
-            childProps.location.search
+          to={`/auth?redirect=${rProps.location.pathname}${
+            rProps.location.search
           }`}
         />
       )
     }
   />
 );
+
+const AuthRoute = ({ render: C, props: childProps, ...rest }) =>
+  childProps.isLoggedIn ? (
+    <Redirect to={`/`} />
+  ) : (
+    <Route {...rest} render={rProps => <C {...rProps} {...childProps} />} />
+  );
 
 const ProppedRoute = ({ render: C, props: childProps, ...rest }) => (
   <Route {...rest} render={rProps => <C {...rProps} {...childProps} />} />
@@ -30,7 +37,7 @@ const Routes = ({ childProps }) => (
     <ProppedRoute
       exact
       path="/auth"
-      component={AuthComponent}
+      render={AuthComponent}
       props={childProps}
     />
     <ProtectedRoute

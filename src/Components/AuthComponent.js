@@ -9,9 +9,13 @@ class AuthComponent extends React.Component {
     if (state === "signedIn") {
       this.props.onUserSignIn();
     }
+    if (state === "signIn") {
+      this.props.onUserSignOut();
+    }
   };
 
   render() {
+    console.log(this.props);
     return (
       <div>
         <Authenticator onStateChange={this.handleStateChange} />

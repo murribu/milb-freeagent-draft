@@ -13,6 +13,7 @@ import awsconfig from "./aws-exports";
 
 import HeaderLinks from "./Components/HeaderLinks";
 import Routes from "./Components/Routes";
+import Greeting from "./Components/Greeting";
 
 // Amplify init
 Amplify.configure(awsconfig);
@@ -42,11 +43,15 @@ class App extends React.Component {
   handleUserSignIn = () => {
     this.setState({ authState: { isLoggedIn: true } });
   };
+  handleUserSignOut = () => {
+    this.setState({ authState: { isLoggedIn: false } });
+  };
 
   render() {
     const childProps = {
       isLoggedIn: this.state.authState.isLoggedIn,
-      onUserSignIn: this.handleUserSignIn
+      onUserSignIn: this.handleUserSignIn,
+      onUserSignOut: this.handleUserSignOut
     };
     return (
       <div className="App">
