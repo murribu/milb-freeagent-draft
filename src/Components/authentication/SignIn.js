@@ -1,8 +1,6 @@
 import React, { Component } from "react";
-// import { Link } from "react-router-dom";
 import { Auth } from "aws-amplify";
 import { Form, Button } from "react-bootstrap";
-// import LoaderButton from "../LoaderButton";
 import FacebookButton from "./FacebookButton";
 import "./SignIn.css";
 import "bootstrap/dist/css/bootstrap.css";

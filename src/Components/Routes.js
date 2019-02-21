@@ -2,7 +2,6 @@ import React from "react";
 import { Route, Switch, Redirect } from "react-router-dom";
 
 import AuthComponent from "./AuthComponent";
-import Secret from "./Secret";
 import HomeComponent from "./HomeComponent";
 import AboutComponent from "./AboutComponent";
 import MyPicks from "./MyPicks";
@@ -56,7 +55,6 @@ const Routes = ({ childProps }) => (
   <Switch>
     <ProppedRoute exact path="/" render={HomeComponent} props={childProps} />
     <AuthRoute exact path="/auth" render={AuthComponent} props={childProps} />
-    <ProtectedRoute exact path="/secret" render={Secret} props={childProps} />
     <ProtectedRoute exact path="/picks" render={MyPicks} props={childProps} />
     <ProppedRoute
       exact

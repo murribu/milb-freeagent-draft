@@ -1,7 +1,4 @@
 import React from "react";
-// import { Authenticator } from "aws-amplify-react";
-// import Amplify, { Auth } from "aws-amplify";
-// import aws_exports from "../aws-exports";
 import SignIn from "./authentication/SignIn";
 
 class AuthComponent extends React.Component {
