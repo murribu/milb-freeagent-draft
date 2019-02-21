@@ -30,6 +30,18 @@ class TopNav extends React.Component {
     }
   }
 
+  renderMyPicks() {
+    if (this.props.isLoggedIn) {
+      return (
+        <Link className="nav-link" to="/picks">
+          My Picks
+        </Link>
+      );
+    } else {
+      return null;
+    }
+  }
+
   render() {
     return (
       <Navbar bg="light" expand="lg">
@@ -42,7 +54,8 @@ class TopNav extends React.Component {
             <Link className="nav-link" to="/">
               Home
             </Link>
-            <Link className="nav-link" to="/about">
+            {this.renderMyPicks()}
+            <Link className="nav-link" to="/leaderboard">
               Leaderboard
             </Link>
             <Link className="nav-link" to="/about">

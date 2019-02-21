@@ -5,6 +5,8 @@ import AuthComponent from "./AuthComponent";
 import Secret from "./Secret";
 import HomeComponent from "./HomeComponent";
 import AboutComponent from "./AboutComponent";
+import MyPicks from "./MyPicks";
+import Leaderboard from "./Leaderboard";
 
 const ProtectedRoute = ({ render: C, props: childProps, ...rest }) => (
   <Route
@@ -55,10 +57,17 @@ const Routes = ({ childProps }) => (
     <ProppedRoute exact path="/" render={HomeComponent} props={childProps} />
     <AuthRoute exact path="/auth" render={AuthComponent} props={childProps} />
     <ProtectedRoute exact path="/secret" render={Secret} props={childProps} />
+    <ProtectedRoute exact path="/picks" render={MyPicks} props={childProps} />
     <ProppedRoute
       exact
       path="/about"
       render={AboutComponent}
+      props={childProps}
+    />
+    <ProppedRoute
+      exact
+      path="/leaderboard"
+      render={Leaderboard}
       props={childProps}
     />
   </Switch>
