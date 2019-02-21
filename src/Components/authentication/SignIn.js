@@ -77,7 +77,7 @@ export default class SignIn extends Component {
           <FacebookButton
             block
             bs-size="large"
-            onUserSignIn={this.props.onUserSignIn}
+            loginWithFacebook={this.props.loginWithFacebook}
           />
         </Form>
       </div>

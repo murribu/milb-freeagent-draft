@@ -36,5 +36,15 @@
       To begin the development, run `npm start` or `yarn start`.
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
+    <script>
+      function Deferred() {
+        var self = this;
+        this.promise = new Promise(function(resolve, reject) {
+          self.reject = reject
+          self.resolve = resolve
+        })
+      }
+      window.fbLoaded = (new Deferred());
+    </script>
   </body>
 </html>

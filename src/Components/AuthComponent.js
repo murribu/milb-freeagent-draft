@@ -21,7 +21,12 @@ class AuthComponent extends React.Component {
 
   render() {
     console.log(this.props);
-    return <SignIn key={1} onUserSignIn={this.props.onUserSignIn} />;
+    return (
+      <SignIn
+        onUserSignIn={this.props.onUserSignIn}
+        loginWithFacebook={this.props.loginWithFacebook}
+      />
+    );
   }
 }
 
