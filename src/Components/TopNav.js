@@ -34,7 +34,7 @@ class TopNav extends React.Component {
     return (
       <Navbar bg="light" expand="lg">
         <Navbar.Brand className="nav-link" to="/">
-          Free Agent Draft 2019
+          MiLB Free Agent Draft 2019
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">

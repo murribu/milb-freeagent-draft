@@ -11,7 +11,7 @@ import { ApolloProvider } from "react-apollo";
 import Amplify, { Auth } from "aws-amplify";
 import awsconfig from "./aws-exports";
 
-import HeaderLinks from "./Components/HeaderLinks";
+// import HeaderLinks from "./Components/HeaderLinks";
 import TopNav from "./Components/TopNav";
 import Routes from "./Components/Routes";
 
@@ -105,10 +105,6 @@ class App extends React.Component {
           handleUserSignOut={this.handleUserSignOut}
           username={this.state.username}
         />
-        <HeaderLinks />
-        <div>
-          {this.state.isLoggedIn ? "User is Logged In" : "Not Logged In"}
-        </div>
         <br />
         <Routes childProps={childProps} />
       </div>
