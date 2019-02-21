@@ -46,6 +46,9 @@ class App extends React.Component {
     this.setState({ isLoggedIn: true, username });
   };
   handleUserSignOut = () => {
+    Auth.signOut()
+      .then(data => console.log(data))
+      .catch(err => console.log(err));
     this.setState({ isLoggedIn: false, username: "" });
   };
 

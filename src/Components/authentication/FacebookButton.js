@@ -1,6 +1,6 @@
-import React, { Component } from "react";
+import React from "react";
 import { Auth } from "aws-amplify";
-import LoaderButton from "./LoaderButton";
+import LoaderButton from "../LoaderButton";
 
 function waitForInit() {
   return new Promise((res, rej) => {
@@ -15,13 +15,40 @@ function waitForInit() {
   });
 }
 
-export default class FacebookButton extends Component {
+export default class FacebookButton extends React.Component {
+  async handleResponse(data) {
+    const { email, accessToken: token, expiresIn } = data;
+    const expires_at = expiresIn * 1000 + new Date().getTime();
+    const user = { email };
+
+    this.setState({ isLoading: true });
+
+    try {
+      const response = await Auth.federatedSignIn(
+        "facebook",
+        { token, expires_at },
+        user
+      );
+      console.log(response);
+      this.setState({ isLoading: false });
+      var self = this;
+      window.FB.api("/me", function(response) {
+        console.log("Good to see you, " + response.name + ".", response);
+        self.props.onUserSignIn(response.name.split(" ")[0]);
+      });
+    } catch (e) {
+      this.setState({ isLoading: false });
+      this.handleError(e);
+    }
+  }
+
   constructor(props) {
     super(props);
 
     this.state = {
       isLoading: true
     };
+    this.handleResponse = this.handleResponse.bind(this);
   }
 
   async componentDidMount() {
@@ -33,9 +60,6 @@ export default class FacebookButton extends Component {
     console.log("statusChangeCallback", response);
     if (response.status === "connected") {
       this.handleResponse(response.authResponse);
-      window.FB.api("/me", function(response) {
-        console.log("Good to see you, " + response.name + ".", response);
-      });
     } else {
       this.handleError(response);
     }
@@ -53,28 +77,6 @@ export default class FacebookButton extends Component {
 
   handleError(error) {
     alert(error);
-  }
-
-  async handleResponse(data) {
-    const { email, accessToken: token, expiresIn } = data;
-    const expires_at = expiresIn * 1000 + new Date().getTime();
-    const user = { email };
-
-    this.setState({ isLoading: true });
-
-    try {
-      const response = await Auth.federatedSignIn(
-        "facebook",
-        { token, expires_at },
-        user
-      );
-      console.log(response);
-      this.setState({ isLoading: false });
-      this.props.onLogin(response);
-    } catch (e) {
-      this.setState({ isLoading: false });
-      this.handleError(e);
-    }
   }
 
   render() {

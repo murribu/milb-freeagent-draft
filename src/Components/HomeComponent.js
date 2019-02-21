@@ -1,5 +1,4 @@
 import React from "react";
-import SignIn from "./authentication/SignIn";
 
 class HomeComponent extends React.Component {
   handleStateChange = state => {
@@ -15,7 +14,6 @@ class HomeComponent extends React.Component {
   render() {
     return (
       <div>
-        <SignIn onUserSignIn={this.props.onUserSignIn} />
         <div>Keep it HomeComponent, yo!</div>
       </div>
     );

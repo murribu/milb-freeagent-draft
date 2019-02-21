@@ -3,6 +3,7 @@ import React, { Component } from "react";
 import { Auth } from "aws-amplify";
 import { Form, Button } from "react-bootstrap";
 // import LoaderButton from "../LoaderButton";
+import FacebookButton from "./FacebookButton";
 import "./SignIn.css";
 import "bootstrap/dist/css/bootstrap.css";
 
@@ -45,7 +46,7 @@ export default class SignIn extends Component {
   render() {
     return (
       <div className="Login">
-        <Form onSubmit={this.handleSubmit}>
+        <Form onSubmit={this.handleSubmit} style={{ textAlign: "center" }}>
           <Form.Group controlId="username" bs-size="large">
             <Form.Control
               autoFocus
@@ -69,6 +70,15 @@ export default class SignIn extends Component {
           >
             Login
           </Button>
+          <br />
+          <span>or</span>
+          <br />
+          <br />
+          <FacebookButton
+            block
+            bs-size="large"
+            onUserSignIn={this.props.onUserSignIn}
+          />
         </Form>
       </div>
     );
