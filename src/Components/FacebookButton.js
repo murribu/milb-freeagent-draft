@@ -30,8 +30,12 @@ export default class FacebookButton extends Component {
   }
 
   statusChangeCallback = response => {
+    console.log("statusChangeCallback", response);
     if (response.status === "connected") {
       this.handleResponse(response.authResponse);
+      window.FB.api("/me", function(response) {
+        console.log("Good to see you, " + response.name + ".", response);
+      });
     } else {
       this.handleError(response);
     }
@@ -42,7 +46,9 @@ export default class FacebookButton extends Component {
   };
 
   handleClick = () => {
-    window.FB.login(this.checkLoginState, { scope: "public_profile,email" });
+    window.FB.login(this.checkLoginState, {
+      scope: "public_profile,email"
+    });
   };
 
   handleError(error) {
@@ -62,6 +68,7 @@ export default class FacebookButton extends Component {
         { token, expires_at },
         user
       );
+      console.log(response);
       this.setState({ isLoading: false });
       this.props.onLogin(response);
     } catch (e) {
@@ -74,8 +81,8 @@ export default class FacebookButton extends Component {
     return (
       <LoaderButton
         block
-        bsSize="large"
-        bsStyle="primary"
+        bs-size="large"
+        bs-style="primary"
         className="FacebookButton"
         text="Login with Facebook"
         onClick={this.handleClick}

@@ -1,6 +1,6 @@
 import React from "react";
-import { Authenticator } from "aws-amplify-react";
-import FacebookButton from "./FacebookButton";
+// import { Authenticator, SignUp, Greetings } from "aws-amplify-react";
+// import FacebookButton from "./FacebookButton";
 
 class AboutComponent extends React.Component {
   handleStateChange = state => {
@@ -13,17 +13,8 @@ class AboutComponent extends React.Component {
     }
   };
 
-  about = () => "Keep it AboutComponent, dude!";
-
   render() {
-    var ret = [];
-    if (this.props.isLoggedIn) {
-      ret.push(<Authenticator onStateChange={this.handleStateChange} />);
-    }
-
-    ret.push(this.about());
-
-    return ret;
+    return <div>Keep it AboutComponent, dude!</div>;
   }
 }
 

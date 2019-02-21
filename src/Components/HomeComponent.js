@@ -1,5 +1,5 @@
 import React from "react";
-import { Authenticator } from "aws-amplify-react";
+import SignIn from "./authentication/SignIn";
 
 class HomeComponent extends React.Component {
   handleStateChange = state => {
@@ -15,7 +15,7 @@ class HomeComponent extends React.Component {
   render() {
     return (
       <div>
-        <Authenticator onStateChange={this.handleStateChange} />
+        <SignIn onUserSignIn={this.props.onUserSignIn} />
         <div>Keep it HomeComponent, yo!</div>
       </div>
     );
