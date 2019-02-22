@@ -8,3 +8,11 @@ export const addPick = `mutation AddPick($playerId:String!, $rank: Int!) {
   }
 }
 `;
+
+export const removePick = `mutation RemovePick($playerId:String!) {
+  removePick(playerId: $playerId) {
+    playerId
+    rank
+  }
+}
+`;

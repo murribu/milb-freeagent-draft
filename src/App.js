@@ -2,10 +2,6 @@ import React from "react";
 import { BrowserRouter } from "react-router-dom";
 import "./App.css";
 
-//AppSync and Apollo libraries
-import AWSAppSyncClient from "aws-appsync";
-import { Rehydrated } from "aws-appsync-react";
-
 //Amplify
 import Amplify, { Auth } from "aws-amplify";
 import awsconfig from "./aws-exports";
@@ -18,22 +14,6 @@ import config from "./config";
 
 // Amplify init
 Amplify.configure(awsconfig);
-
-const GRAPHQL_API_REGION = awsconfig.aws_appsync_region;
-const GRAPHQL_API_ENDPOINT_URL = awsconfig.aws_appsync_graphqlEndpoint;
-const AUTH_TYPE = awsconfig.aws_appsync_authenticationType;
-
-// AppSync client instantiation
-const client = new AWSAppSyncClient({
-  url: GRAPHQL_API_ENDPOINT_URL,
-  region: GRAPHQL_API_REGION,
-  auth: {
-    type: AUTH_TYPE,
-    // Get the currently logged in users credential.
-    jwtToken: async () =>
-      (await Auth.currentSession()).getAccessToken().getJwtToken()
-  }
-});
 
 function waitForInit() {
   return new Promise((res, rej) => {

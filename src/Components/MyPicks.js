@@ -7,7 +7,7 @@ import Amplify, { Auth } from "aws-amplify";
 import awsconfig from "../aws-exports";
 import gql from "graphql-tag";
 import { getMyPicks } from "../graphql/queries";
-import { addPick } from "../graphql/mutations";
+import { addPick, removePick } from "../graphql/mutations";
 
 import "./MyPicks.css";
 
@@ -41,6 +41,7 @@ class MyPicks extends React.Component {
     this.pickThisPlayer = this.pickThisPlayer.bind(this);
     this.componentDidMount = this.componentDidMount.bind(this);
     this.getMyPicks = this.getMyPicks.bind(this);
+    this.removePick = this.removePick.bind(this);
   }
 
   state = {
@@ -65,11 +66,13 @@ class MyPicks extends React.Component {
         var picks = getMyPicks
           .map(p => {
             var player = self.state.players.find(
-              pl => pl.baseballamerica == p.playerId
+              pl => parseInt(pl.baseballamerica) === parseInt(p.playerId)
             );
             if (player) {
               player.rank = p.rank;
               return player;
+            } else {
+              return null;
             }
           })
           .sort((a, b) => (a.rank > b.rank ? 1 : -1));
@@ -119,10 +122,10 @@ class MyPicks extends React.Component {
   }
 
   pickThisPlayer(e) {
-    var player_ba_id = e.currentTarget.attributes["data-player"].value;
     var ordinal = 1;
     for (var p = 1; p <= 20; p++) {
-      if (typeof this.state.picks[p] === "undefined") {
+      var pick = this.state.picks.find(pi => parseInt(pi.rank) === p);
+      if (typeof pick === "undefined") {
         ordinal = p;
         break;
       }
@@ -168,20 +171,55 @@ class MyPicks extends React.Component {
         </div>
       );
     } else {
-      return "";
+      return (
+        <h3 className="lead text-center mt-5">
+          Click on a player to the right to view them.
+        </h3>
+      );
     }
+  }
+
+  removePick(e) {
+    client
+      .mutate({
+        mutation: gql(removePick),
+        variables: {
+          playerId: e.currentTarget.attributes["data-player"].value
+        }
+      })
+      .then(result => {
+        console.log(result);
+        setTimeout(this.getMyPicks, 100);
+      });
   }
 
   renderPicks() {
     var ret = [];
     for (var p = 1; p <= 20; p++) {
       var pick = this.state.picks.find(pi => pi.rank === p);
+      var elements = [];
+      elements.push(<div className="col-2" />);
+      elements.push(<div className="col-1 text-right">{p}.</div>);
+      elements.push(
+        <div className="col-7">
+          {pick ? pick.first_name + " " + pick.last_name : ""}
+        </div>
+      );
+      if (pick) {
+        elements.push(
+          <Button
+            className="btn-danger btn-sm"
+            style={{ paddingTop: "0px", paddingBottom: "0px", margin: "5px" }}
+            data-player={pick.baseballamerica}
+            onClick={this.removePick}
+          >
+            &times;
+          </Button>
+        );
+      }
       ret.push(
-        <div key={p} className="row">
-          <div className="col-1 text-right">{p}.</div>
-          <div className="col-10">
-            {pick ? pick.first_name + " " + pick.last_name : ""}
-          </div>
+        <div key={p} className="row" style={{ height: "33px" }}>
+          {elements}
         </div>
       );
     }
@@ -195,7 +233,7 @@ class MyPicks extends React.Component {
         <div className="row">
           <div className="col-sm-4 col-xs-12">
             <div className="container">
-              <h2>My Picks</h2>
+              <h2 className="text-center">My Picks</h2>
               {this.renderPicks()}
             </div>
           </div>
@@ -210,7 +248,7 @@ class MyPicks extends React.Component {
             />
             <div
               className="container"
-              style={{ maxHeight: "500px", overflowY: "scroll" }}
+              style={{ maxHeight: "660px", overflowY: "scroll" }}
             >
               <div className="row">
                 <div className="col-6" style={{ fontWeight: "bold" }}>
