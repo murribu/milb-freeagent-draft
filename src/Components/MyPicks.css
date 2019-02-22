@@ -1,3 +1,9 @@
 .gray {
   background-color: #ededed;
 }
+.pointy {
+  cursor: pointer;
+}
+.nowrap {
+  white-space: nowrap;
+}

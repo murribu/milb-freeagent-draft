@@ -85,11 +85,15 @@ class MyPicks extends React.Component {
     return players
       .filter(
         p =>
-          this.state.search === "" ||
-          (p.first_name + " " + p.last_name)
-            .toLowerCase()
-            .indexOf(this.state.search.toLowerCase()) > -1 ||
-          p.team.toLowerCase().indexOf(this.state.search.toLowerCase()) > -1
+          this.state.picks.filter(
+            pick =>
+              parseInt(pick.baseballamerica) === parseInt(p.baseballamerica)
+          ).length === 0 &&
+          (this.state.search === "" ||
+            (p.first_name + " " + p.last_name)
+              .toLowerCase()
+              .indexOf(this.state.search.toLowerCase()) > -1 ||
+            p.team.toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)
       )
       .sort(
         (a, b) =>
@@ -122,6 +126,7 @@ class MyPicks extends React.Component {
   }
 
   pickThisPlayer(e) {
+    this.setState({ selectedPlayer: {} });
     var ordinal = 1;
     for (var p = 1; p <= 20; p++) {
       var pick = this.state.picks.find(pi => parseInt(pi.rank) === p);
@@ -135,7 +140,7 @@ class MyPicks extends React.Component {
       .mutate({
         mutation: gql(addPick),
         variables: {
-          playerId: e.currentTarget.attributes["data-player"].value,
+          playerId: e.currentTarget.attributes["data-player-id"].value,
           rank: ordinal
         }
       })
@@ -146,8 +151,11 @@ class MyPicks extends React.Component {
   }
 
   selectPlayer(e) {
-    var filteredPlayers = this.filteredPlayers();
-    var player = filteredPlayers[e.currentTarget.attributes["data-key"].value];
+    var player = this.state.players.find(
+      p =>
+        parseInt(p.baseballamerica) ===
+        parseInt(e.currentTarget.attributes["data-player-id"].value)
+    );
     console.log(player);
     this.setState({ selectedPlayer: player });
   }
@@ -164,7 +172,7 @@ class MyPicks extends React.Component {
           <p className="lead">{this.state.selectedPlayer.team}</p>
           <Button
             onClick={this.pickThisPlayer}
-            data-player={this.state.selectedPlayer.baseballamerica}
+            data-player-id={this.state.selectedPlayer.baseballamerica}
           >
             Pick this Player
           </Button>
@@ -173,7 +181,7 @@ class MyPicks extends React.Component {
     } else {
       return (
         <h3 className="lead text-center mt-5">
-          Click on a player to the right to view them.
+          Click on a player to view them.
         </h3>
       );
     }
@@ -184,7 +192,7 @@ class MyPicks extends React.Component {
       .mutate({
         mutation: gql(removePick),
         variables: {
-          playerId: e.currentTarget.attributes["data-player"].value
+          playerId: e.currentTarget.attributes["data-player-id"].value
         }
       })
       .then(result => {
@@ -198,19 +206,29 @@ class MyPicks extends React.Component {
     for (var p = 1; p <= 20; p++) {
       var pick = this.state.picks.find(pi => pi.rank === p);
       var elements = [];
-      elements.push(<div className="col-2" />);
-      elements.push(<div className="col-1 text-right">{p}.</div>);
+      elements.push(<div key={p + "-1"} className="col-1" />);
       elements.push(
-        <div className="col-7">
+        <div key={p + "-2"} className="col-1 text-right">
+          {p}.
+        </div>
+      );
+      elements.push(
+        <div
+          key={p + "-3"}
+          className="col-7 pointy nowrap"
+          onClick={this.selectPlayer}
+          data-player-id={pick ? pick.baseballamerica : ""}
+        >
           {pick ? pick.first_name + " " + pick.last_name : ""}
         </div>
       );
       if (pick) {
         elements.push(
           <Button
+            key={p + "-4"}
             className="btn-danger btn-sm"
             style={{ paddingTop: "0px", paddingBottom: "0px", margin: "5px" }}
-            data-player={pick.baseballamerica}
+            data-player-id={pick.baseballamerica}
             onClick={this.removePick}
           >
             &times;
@@ -231,16 +249,16 @@ class MyPicks extends React.Component {
     return (
       <div className="container">
         <div className="row">
-          <div className="col-sm-4 col-xs-12">
+          <div className="col-lg-4 col-md-6 col-sm-8 col-xs-12">
             <div className="container">
               <h2 className="text-center">My Picks</h2>
               {this.renderPicks()}
             </div>
           </div>
-          <div className="col-sm-4 col-xs-12">
+          <div className="col-lg-4 col-md-6 col-sm-4 col-xs-12">
             {this.renderSelectedPlayer()}
           </div>
-          <div className="col-sm-4 col-xs-12">
+          <div className="col-lg-4 col-md-12 col-sm-12 col-xs-12">
             <Form.Control
               placeholder="search"
               defaultValue={this.state.search}
@@ -272,9 +290,9 @@ class MyPicks extends React.Component {
               </div>
               {Object.keys(filteredPlayers).map(key => (
                 <div
-                  className={"row " + (key % 2 === 0 ? "gray" : "")}
+                  className={"row pointy " + (key % 2 === 0 ? "gray" : "")}
                   key={key}
-                  data-key={key}
+                  data-player-id={filteredPlayers[key].baseballamerica}
                   onClick={this.selectPlayer}
                 >
                   <div className="col-6">
