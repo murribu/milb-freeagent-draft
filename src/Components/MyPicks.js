@@ -1,7 +1,35 @@
 import React from "react";
 import { Form, Button } from "react-bootstrap";
 import players from "../players.json";
+
+import AWSAppSyncClient from "aws-appsync";
+import Amplify, { Auth } from "aws-amplify";
+import awsconfig from "../aws-exports";
+import gql from "graphql-tag";
+import { getMyPicks } from "../graphql/queries";
+import { addPick } from "../graphql/mutations";
+
 import "./MyPicks.css";
+
+// Amplify init
+Amplify.configure(awsconfig);
+
+const GRAPHQL_API_REGION = awsconfig.aws_appsync_region;
+const GRAPHQL_API_ENDPOINT_URL = awsconfig.aws_appsync_graphqlEndpoint;
+const AUTH_TYPE = awsconfig.aws_appsync_authenticationType;
+
+// AppSync client instantiation
+const client = new AWSAppSyncClient({
+  url: GRAPHQL_API_ENDPOINT_URL,
+  region: GRAPHQL_API_REGION,
+  auth: {
+    type: AUTH_TYPE,
+    // Get the currently logged in users credential.
+    jwtToken: async () =>
+      (await Auth.currentSession()).getAccessToken().getJwtToken()
+  },
+  cacheOptions: {}
+});
 
 class MyPicks extends React.Component {
   constructor(props) {
@@ -11,6 +39,8 @@ class MyPicks extends React.Component {
     this.renderSelectedPlayer = this.renderSelectedPlayer.bind(this);
     this.selectPlayer = this.selectPlayer.bind(this);
     this.pickThisPlayer = this.pickThisPlayer.bind(this);
+    this.componentDidMount = this.componentDidMount.bind(this);
+    this.getMyPicks = this.getMyPicks.bind(this);
   }
 
   state = {
@@ -19,8 +49,34 @@ class MyPicks extends React.Component {
     sortDirection: "asc",
     search: "",
     selectedPlayer: {},
-    picks: {}
+    picks: [],
+    loading: true
   };
+
+  componentDidMount() {
+    this.getMyPicks();
+  }
+
+  getMyPicks() {
+    var self = this;
+    client
+      .query({ query: gql(getMyPicks), fetchPolicy: "network-only" })
+      .then(({ data: { getMyPicks } }) => {
+        var picks = getMyPicks
+          .map(p => {
+            var player = self.state.players.find(
+              pl => pl.baseballamerica == p.playerId
+            );
+            if (player) {
+              player.rank = p.rank;
+              return player;
+            }
+          })
+          .sort((a, b) => (a.rank > b.rank ? 1 : -1));
+        self.setState({ loading: false, picks });
+        console.log(getMyPicks);
+      });
+  }
 
   filteredPlayers() {
     return players
@@ -44,14 +100,6 @@ class MyPicks extends React.Component {
       );
   }
 
-  sortedPicks() {
-    var ordered = {};
-    Object.keys(this.state.picks)
-      .sort()
-      .forEach(k => (ordered[k] = this.state.picks[k]));
-    return ordered;
-  }
-
   handleSearchChange(e) {
     this.setState({ search: e.target.value });
   }
@@ -72,19 +120,26 @@ class MyPicks extends React.Component {
 
   pickThisPlayer(e) {
     var player_ba_id = e.currentTarget.attributes["data-player"].value;
-    var player = this.state.players.find(
-      p => p.baseballamerica === player_ba_id
-    );
-    var picks = { ...this.state.picks };
     var ordinal = 1;
     for (var p = 1; p <= 20; p++) {
-      if (typeof picks[p] === "undefined") {
+      if (typeof this.state.picks[p] === "undefined") {
         ordinal = p;
         break;
       }
     }
-    picks[ordinal] = player;
-    this.setState({ picks });
+
+    client
+      .mutate({
+        mutation: gql(addPick),
+        variables: {
+          playerId: e.currentTarget.attributes["data-player"].value,
+          rank: ordinal
+        }
+      })
+      .then(result => {
+        console.log(result);
+        setTimeout(this.getMyPicks, 100);
+      });
   }
 
   selectPlayer(e) {
@@ -120,15 +175,12 @@ class MyPicks extends React.Component {
   renderPicks() {
     var ret = [];
     for (var p = 1; p <= 20; p++) {
+      var pick = this.state.picks.find(pi => pi.rank === p);
       ret.push(
-        <div className="row">
+        <div key={p} className="row">
           <div className="col-1 text-right">{p}.</div>
           <div className="col-10">
-            {this.state.picks[p]
-              ? this.state.picks[p].first_name +
-                " " +
-                this.state.picks[p].last_name
-              : ""}
+            {pick ? pick.first_name + " " + pick.last_name : ""}
           </div>
         </div>
       );

@@ -1,6 +1,6 @@
 import React from "react";
 import { Navbar, Nav, Form, Button } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.css";
 
 class TopNav extends React.Component {
@@ -23,9 +23,9 @@ class TopNav extends React.Component {
       );
     } else {
       return (
-        <Link className="nav-link" to="/auth">
+        <NavLink className="nav-link" to="/auth">
           Sign In
-        </Link>
+        </NavLink>
       );
     }
   }
@@ -33,9 +33,9 @@ class TopNav extends React.Component {
   renderMyPicks() {
     if (this.props.isLoggedIn) {
       return (
-        <Link className="nav-link" to="/picks">
+        <NavLink className="nav-link" to="/picks">
           My Picks
-        </Link>
+        </NavLink>
       );
     } else {
       return null;
@@ -51,16 +51,13 @@ class TopNav extends React.Component {
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="mr-auto">
-            <Link className="nav-link" to="/">
-              Home
-            </Link>
             {this.renderMyPicks()}
-            <Link className="nav-link" to="/leaderboard">
+            <NavLink className="nav-link" to="/leaderboard">
               Leaderboard
-            </Link>
-            <Link className="nav-link" to="/about">
+            </NavLink>
+            <NavLink className="nav-link" to="/about">
               About
-            </Link>
+            </NavLink>
           </Nav>
           <Form inline onSubmit={this.signOut}>
             <span className="mr-3">

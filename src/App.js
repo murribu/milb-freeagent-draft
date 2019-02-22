@@ -5,7 +5,6 @@ import "./App.css";
 //AppSync and Apollo libraries
 import AWSAppSyncClient from "aws-appsync";
 import { Rehydrated } from "aws-appsync-react";
-import { ApolloProvider } from "react-apollo";
 
 //Amplify
 import Amplify, { Auth } from "aws-amplify";
@@ -210,10 +209,4 @@ const AppWithRouter = () => (
   </BrowserRouter>
 );
 
-export default () => (
-  <ApolloProvider client={client}>
-    <Rehydrated>
-      <AppWithRouter />
-    </Rehydrated>
-  </ApolloProvider>
-);
+export default () => <AppWithRouter />;
