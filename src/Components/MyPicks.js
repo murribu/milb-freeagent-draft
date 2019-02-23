@@ -31,6 +31,54 @@ const client = new AWSAppSyncClient({
   cacheOptions: {}
 });
 
+const sites = [
+  {
+    display: "MLB",
+    href: "http://mlb.mlb.com/team/player.jsp?player_id=*",
+    prop: "mlb"
+  },
+  {
+    display: "Baseball America",
+    href: "https://www.baseballamerica.com/players/*",
+    prop: "baseballamerica"
+  },
+  {
+    display: "Fangraphs",
+    href: "http://www.fangraphs.com/statss.aspx?playerid=*",
+    prop: "fangraphs"
+  },
+  {
+    display: "Baseball Reference",
+    href: "http://www.baseball-reference.com/players/*",
+    prop: "bbref"
+  },
+  {
+    display: "Baseball Reference Minors",
+    href: "http://minors.baseball-reference.com/minors/player.cgi?id=*",
+    prop: "bbrefminors"
+  },
+  {
+    display: "Rotoworld",
+    href: "https://www.rotoworld.com/baseball/mlb/player/*",
+    prop: "rotoworld"
+  },
+  {
+    display: "CBS",
+    href: "http://www.sportsline.com/mlb/players/playerpage/*",
+    prop: "cbs"
+  },
+  {
+    display: "Yahoo",
+    href: "http://sports.yahoo.com/mlb/players/*",
+    prop: "yahoo"
+  },
+  {
+    display: "Twitter",
+    href: "https://twitter.com/*",
+    prop: "twitter"
+  }
+];
+
 class MyPicks extends React.Component {
   constructor(props) {
     super(props);
@@ -176,6 +224,39 @@ class MyPicks extends React.Component {
           >
             Pick this Player
           </Button>
+          <p className="lead mt-5">
+            View{" "}
+            {this.state.selectedPlayer.first_name +
+              " " +
+              this.state.selectedPlayer.last_name}{" "}
+            on
+          </p>
+          {Object.keys(this.state.selectedPlayer).map(k => {
+            var site = sites.find(s => s.prop === k);
+            if (site && this.state.selectedPlayer[k] !== null) {
+              var href;
+              if (k === "bbref") {
+                href = site.href.replace(
+                  "*",
+                  this.state.selectedPlayer[k].substring(0, 1) +
+                    "/" +
+                    this.state.selectedPlayer[k] +
+                    ".shtml"
+                );
+              } else {
+                href = site.href.replace("*", this.state.selectedPlayer[k]);
+              }
+              return (
+                <p key={"selectedPlayer-" + k}>
+                  <a href={href} target="_new">
+                    {site.display}
+                  </a>
+                </p>
+              );
+            } else {
+              return "";
+            }
+          })}
         </div>
       );
     } else {
