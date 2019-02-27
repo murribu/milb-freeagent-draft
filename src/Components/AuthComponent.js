@@ -17,7 +17,6 @@ class AuthComponent extends React.Component {
   };
 
   render() {
-    console.log(this.props);
     return (
       <SignIn
         onUserSignIn={this.props.onUserSignIn}

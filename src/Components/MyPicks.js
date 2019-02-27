@@ -3,7 +3,7 @@ import { Form, Button } from "react-bootstrap";
 import players from "../players.json";
 
 import AWSAppSyncClient from "aws-appsync";
-import Amplify, { Auth } from "aws-amplify";
+import Amplify, { API, graphqlOperation } from "aws-amplify";
 import awsconfig from "../aws-exports";
 import gql from "graphql-tag";
 import { getMyPicks } from "../graphql/queries";
@@ -12,23 +12,22 @@ import { addPick, removePick } from "../graphql/mutations";
 import "./MyPicks.css";
 
 // Amplify init
-Amplify.configure(awsconfig);
-
-const GRAPHQL_API_REGION = awsconfig.aws_appsync_region;
-const GRAPHQL_API_ENDPOINT_URL = awsconfig.aws_appsync_graphqlEndpoint;
-const AUTH_TYPE = awsconfig.aws_appsync_authenticationType;
-
-// AppSync client instantiation
-const client = new AWSAppSyncClient({
-  url: GRAPHQL_API_ENDPOINT_URL,
-  region: GRAPHQL_API_REGION,
-  auth: {
-    type: AUTH_TYPE,
-    // Get the currently logged in users credential.
-    jwtToken: async () =>
-      (await Auth.currentSession()).getAccessToken().getJwtToken()
+Amplify.configure({
+  Auth: {
+    // REQUIRED - Amazon Cognito Identity Pool ID
+    userPoolId: awsconfig.aws_user_pools_id,
+    // REQUIRED - Amazon Cognito Region
+    region: awsconfig.aws_cognito_region,
+    // OPTIONAL - Amazon Cognito User Pool ID
+    identityPoolId: awsconfig.aws_cognito_identity_pool_id,
+    // OPTIONAL - Amazon Cognito Web Client ID
+    userPoolWebClientId: awsconfig.aws_user_pools_web_client_id
   },
-  cacheOptions: {}
+  API: {
+    aws_appsync_graphqlEndpoint: awsconfig.aws_appsync_graphqlEndpoint,
+    aws_appsync_region: awsconfig.aws_cognito_region,
+    aws_appsync_authenticationType: "AWS_IAM"
+  }
 });
 
 const sites = [
@@ -106,27 +105,12 @@ class MyPicks extends React.Component {
     this.getMyPicks();
   }
 
-  getMyPicks() {
+  async getMyPicks() {
     var self = this;
-    client
-      .query({ query: gql(getMyPicks), fetchPolicy: "network-only" })
-      .then(({ data: { getMyPicks } }) => {
-        var picks = getMyPicks
-          .map(p => {
-            var player = self.state.players.find(
-              pl => parseInt(pl.baseballamerica) === parseInt(p.playerId)
-            );
-            if (player) {
-              player.rank = p.rank;
-              return player;
-            } else {
-              return null;
-            }
-          })
-          .sort((a, b) => (a.rank > b.rank ? 1 : -1));
-        self.setState({ loading: false, picks });
-        console.log(getMyPicks);
-      });
+    this.setState({ loading: true });
+    var { data } = await API.graphql(graphqlOperation(getMyPicks));
+    console.log(data.getMyPicks);
+    this.setState({ loading: false, picks: data.getMyPicks });
   }
 
   filteredPlayers() {
@@ -134,8 +118,7 @@ class MyPicks extends React.Component {
       .filter(
         p =>
           this.state.picks.filter(
-            pick =>
-              parseInt(pick.baseballamerica) === parseInt(p.baseballamerica)
+            pick => parseInt(pick.playerId) === parseInt(p.baseballamerica)
           ).length === 0 &&
           (this.state.search === "" ||
             (p.first_name + " " + p.last_name)
@@ -173,7 +156,7 @@ class MyPicks extends React.Component {
     }
   }
 
-  pickThisPlayer(e) {
+  async pickThisPlayer(e) {
     this.setState({ selectedPlayer: {} });
     var ordinal = 1;
     for (var p = 1; p <= 20; p++) {
@@ -184,18 +167,17 @@ class MyPicks extends React.Component {
       }
     }
 
-    client
-      .mutate({
-        mutation: gql(addPick),
-        variables: {
+    try {
+      var { data } = await API.graphql(
+        graphqlOperation(addPick, {
           playerId: e.currentTarget.attributes["data-player-id"].value,
           rank: ordinal
-        }
-      })
-      .then(result => {
-        console.log(result);
-        setTimeout(this.getMyPicks, 100);
-      });
+        })
+      );
+      setTimeout(this.getMyPicks, 100);
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   selectPlayer(e) {
@@ -218,12 +200,16 @@ class MyPicks extends React.Component {
               this.state.selectedPlayer.last_name}
           </h3>
           <p className="lead">{this.state.selectedPlayer.team}</p>
-          <Button
-            onClick={this.pickThisPlayer}
-            data-player-id={this.state.selectedPlayer.baseballamerica}
-          >
-            Pick this Player
-          </Button>
+          {this.props.isReadonly ? (
+            ""
+          ) : (
+            <Button
+              onClick={this.pickThisPlayer}
+              data-player-id={this.state.selectedPlayer.baseballamerica}
+            >
+              Pick this Player
+            </Button>
+          )}
           <p className="lead mt-5">
             View{" "}
             {this.state.selectedPlayer.first_name +
@@ -268,61 +254,67 @@ class MyPicks extends React.Component {
     }
   }
 
-  removePick(e) {
-    client
-      .mutate({
-        mutation: gql(removePick),
-        variables: {
+  async removePick(e) {
+    try {
+      var { data } = await API.graphql(
+        graphqlOperation(removePick, {
           playerId: e.currentTarget.attributes["data-player-id"].value
-        }
-      })
-      .then(result => {
-        console.log(result);
-        setTimeout(this.getMyPicks, 100);
-      });
+        })
+      );
+      setTimeout(this.getMyPicks, 100);
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   renderPicks() {
     var ret = [];
-    for (var p = 1; p <= 20; p++) {
-      var pick = this.state.picks.find(pi => pi.rank === p);
-      var elements = [];
-      elements.push(<div key={p + "-1"} className="col-1" />);
-      elements.push(
-        <div key={p + "-2"} className="col-1 text-right">
-          {p}.
-        </div>
-      );
-      elements.push(
-        <div
-          key={p + "-3"}
-          className="col-7 pointy nowrap"
-          onClick={this.selectPlayer}
-          data-player-id={pick ? pick.baseballamerica : ""}
-        >
-          {pick ? pick.first_name + " " + pick.last_name : ""}
-        </div>
-      );
-      if (pick) {
+    if (this.state.loading) {
+      return "Loading...";
+    } else {
+      for (var p = 1; p <= 20; p++) {
+        var pick = this.state.picks.find(pi => pi.rank === p);
+        var player = pick
+          ? this.state.players.find(pl => pl.baseballamerica == pick.playerId)
+          : null;
+        var elements = [];
+        elements.push(<div key={p + "-1"} className="col-1" />);
         elements.push(
-          <Button
-            key={p + "-4"}
-            className="btn-danger btn-sm"
-            style={{ paddingTop: "0px", paddingBottom: "0px", margin: "5px" }}
-            data-player-id={pick.baseballamerica}
-            onClick={this.removePick}
+          <div key={p + "-2"} className="col-1 text-right">
+            {p}.
+          </div>
+        );
+        elements.push(
+          <div
+            key={p + "-3"}
+            className="col-7 pointy nowrap"
+            onClick={this.selectPlayer}
+            data-player-id={player ? player.baseballamerica : ""}
           >
-            &times;
-          </Button>
+            {player ? player.first_name + " " + player.last_name : ""}
+          </div>
+        );
+        if (player && !this.props.isReadonly) {
+          elements.push(
+            <Button
+              key={p + "-4"}
+              className="btn-danger btn-sm"
+              style={{ paddingTop: "0px", paddingBottom: "0px", margin: "5px" }}
+              data-player-id={player.baseballamerica}
+              onClick={this.removePick}
+            >
+              &times;
+            </Button>
+          );
+        }
+        ret.push(
+          <div key={p} className="row" style={{ height: "33px" }}>
+            {elements}
+          </div>
         );
       }
-      ret.push(
-        <div key={p} className="row" style={{ height: "33px" }}>
-          {elements}
-        </div>
-      );
+      return ret;
     }
-    return ret;
   }
 
   render() {

@@ -7,6 +7,8 @@ import AboutComponent from "./AboutComponent";
 import MyPicks from "./MyPicks";
 import Leaderboard from "./Leaderboard";
 
+import SignUp from "./authentication/SignUp";
+
 const ProtectedRoute = ({ render: C, props: childProps, ...rest }) => (
   <Route
     {...rest}
@@ -55,6 +57,7 @@ const Routes = ({ childProps }) => (
   <Switch>
     <ProppedRoute exact path="/" render={HomeComponent} props={childProps} />
     <AuthRoute exact path="/auth" render={AuthComponent} props={childProps} />
+    <AuthRoute exact path="/auth/create" render={SignUp} props={childProps} />
     <ProtectedRoute exact path="/picks" render={MyPicks} props={childProps} />
     <ProppedRoute
       exact

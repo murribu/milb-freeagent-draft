@@ -15,7 +15,7 @@ export default ({
     disabled={disabled || isLoading}
     {...props}
   >
-    {isLoading && "spinning"}
+    {isLoading && "..."}
     {!isLoading ? text : loadingText}
   </Button>
 );

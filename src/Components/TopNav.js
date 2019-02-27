@@ -1,4 +1,5 @@
 import React from "react";
+import { LinkContainer } from "react-router-bootstrap";
 import { Navbar, Nav, Form, Button } from "react-bootstrap";
 import { NavLink } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.css";
@@ -45,9 +46,11 @@ class TopNav extends React.Component {
   render() {
     return (
       <Navbar bg="light" expand="lg">
-        <Navbar.Brand className="nav-link" to="/">
-          MiLB Free Agent Draft 2019
-        </Navbar.Brand>
+        <LinkContainer to="/">
+          <Navbar.Brand className="nav-link">
+            MiLB Free Agent Draft 2019
+          </Navbar.Brand>
+        </LinkContainer>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="mr-auto">

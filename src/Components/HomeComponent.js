@@ -26,7 +26,7 @@ class HomeComponent extends React.Component {
           >
             Effectively Wild's episode #1315
           </a>{" "}
-          inspired this game. The user is encouraged to listen to that episode
+          inspired this game. I would encourage you to listen to that episode
           for a primer.
         </p>
         <p>

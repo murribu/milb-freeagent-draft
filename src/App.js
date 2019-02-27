@@ -44,10 +44,12 @@ class App extends React.Component {
   state = {
     isLoggedIn: false,
     username: "",
-    isAuthenticating: false
+    isAuthenticating: false,
+    isReadonly: false,
+    sub: null
   };
-  handleUserSignIn = username => {
-    this.setState({ isLoggedIn: true, username });
+  handleUserSignIn = (username, sub = null) => {
+    this.setState({ isLoggedIn: true, username, sub });
   };
   handleUserSignOut = () => {
     Auth.signOut()
@@ -78,8 +80,8 @@ class App extends React.Component {
     try {
       user = await Auth.currentAuthenticatedUser();
       console.log("Auth.currentAuthenticatedUser", user);
-      if (user.username) {
-        this.handleUserSignIn(user.username);
+      if (user && user.attributes && user.attributes.email) {
+        this.handleUserSignIn(user.attributes.email, user.attributes.sub);
       } else {
         this.getFacebookUserInfo();
       }
@@ -167,7 +169,8 @@ class App extends React.Component {
       onUserSignIn: this.handleUserSignIn,
       onUserSignOut: this.handleUserSignOut,
       loginWithFacebook: this.loginWithFacebook,
-      isLoading: this.state.isLoading
+      isLoading: this.state.isLoading,
+      isReadonly: this.state.isReadonly
     };
     return (
       <div className="App">

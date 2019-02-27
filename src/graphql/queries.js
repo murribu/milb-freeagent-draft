@@ -8,3 +8,10 @@ export const getMyPicks = `query GetMyPicks {
   }
 }
 `;
+
+export const getLeaders = `query GetLeaders {
+  getLeaders {
+    userId
+    score
+  }
+}`;

@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { Auth } from "aws-amplify";
 import { Form, Button } from "react-bootstrap";
+import { Link } from "react-router-dom";
 import FacebookButton from "./FacebookButton";
 import "./SignIn.css";
 import "bootstrap/dist/css/bootstrap.css";
@@ -11,13 +12,13 @@ export default class SignIn extends Component {
 
     this.state = {
       isLoading: false,
-      username: "",
+      email: "",
       password: ""
     };
   }
 
   validateForm() {
-    return this.state.username.length > 0 && this.state.password.length > 0;
+    return this.state.email.length > 0 && this.state.password.length > 0;
   }
 
   handleChange = event => {
@@ -32,7 +33,7 @@ export default class SignIn extends Component {
     this.setState({ isLoading: true });
 
     try {
-      var ret = await Auth.signIn(this.state.username, this.state.password);
+      var ret = await Auth.signIn(this.state.email, this.state.password);
       console.log(ret);
       this.props.onUserSignIn(ret.username);
     } catch (e) {
@@ -45,11 +46,11 @@ export default class SignIn extends Component {
     return (
       <div className="Login">
         <Form onSubmit={this.handleSubmit} style={{ textAlign: "center" }}>
-          <Form.Group controlId="username" bs-size="large">
+          <Form.Group controlId="email" bs-size="large">
             <Form.Control
               autoFocus
-              type="text"
-              value={this.state.username}
+              type="email"
+              value={this.state.email}
               onChange={this.handleChange}
             />
           </Form.Group>
@@ -68,6 +69,7 @@ export default class SignIn extends Component {
           >
             Login
           </Button>
+          <Link to="/auth/create">create a user</Link>
           <br />
           <span>or</span>
           <br />
