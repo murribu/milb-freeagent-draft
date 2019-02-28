@@ -3,6 +3,7 @@ import { Auth } from "aws-amplify";
 import { Form, Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import FacebookButton from "./FacebookButton";
+import awsconfig from "../../aws-exports";
 import "./SignIn.css";
 import "bootstrap/dist/css/bootstrap.css";
 
@@ -35,7 +36,12 @@ export default class SignIn extends Component {
     try {
       var ret = await Auth.signIn(this.state.email, this.state.password);
       console.log(ret);
-      this.props.onUserSignIn(ret.username);
+      this.props.onUserSignIn(
+        ret.signInUserSession.idToken.payload.email,
+        ret.storage[
+          "aws.cognito.identity-id." + awsconfig.aws_cognito_identity_pool_id
+        ]
+      );
     } catch (e) {
       alert(e.message);
       this.setState({ isLoading: false });

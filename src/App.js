@@ -55,7 +55,7 @@ class App extends React.Component {
     Auth.signOut()
       .then(data => console.log(data))
       .catch(err => console.log(err));
-    this.setState({ isLoggedIn: false, username: "" });
+    this.setState({ isLoggedIn: false, username: "", sub: null });
   };
   getFacebookUserInfo = () => {
     var self = this;
@@ -67,7 +67,7 @@ class App extends React.Component {
           });
         } else {
           console.log("Good to see you, " + response.name + ".", response);
-          self.handleUserSignIn(response.name.split(" ")[0]);
+          self.handleUserSignIn(response.name.split(" ")[0], self.state.sub);
         }
       });
     });
@@ -81,7 +81,12 @@ class App extends React.Component {
       user = await Auth.currentAuthenticatedUser();
       console.log("Auth.currentAuthenticatedUser", user);
       if (user && user.attributes && user.attributes.email) {
-        this.handleUserSignIn(user.attributes.email, user.attributes.sub);
+        this.handleUserSignIn(
+          user.attributes.email,
+          user.storage[
+            "aws.cognito.identity-id." + awsconfig.aws_cognito_identity_pool_id
+          ]
+        );
       } else {
         this.getFacebookUserInfo();
       }
@@ -131,7 +136,14 @@ class App extends React.Component {
     Auth.federatedSignIn("facebook", { token, expires_at }, user)
       .then(response => {
         console.log(response);
-        this.setState({ isLoading: false });
+        this.setState({
+          isLoading: false,
+          sub:
+            response.storage[
+              "aws.cognito.identity-id." +
+                awsconfig.aws_cognito_identity_pool_id
+            ]
+        });
         this.getFacebookUserInfo();
       })
       .catch(e => {
@@ -170,7 +182,8 @@ class App extends React.Component {
       onUserSignOut: this.handleUserSignOut,
       loginWithFacebook: this.loginWithFacebook,
       isLoading: this.state.isLoading,
-      isReadonly: this.state.isReadonly
+      isReadonly: this.state.isReadonly,
+      sub: this.state.sub
     };
     return (
       <div className="App">

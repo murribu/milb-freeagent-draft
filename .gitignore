@@ -1,4 +1,6 @@
 node_modules/
+build/
+
 amplify
 
 config.js
@@ -9,3 +11,7 @@ amplify/.config/local-*
 amplify/backend/amplify-meta.json
 aws-exports.js
 awsconfiguration.json
+
+hitter_leaders.json
+pitcher_leaders.json
+user_leaders.json
