@@ -1,47 +1,16 @@
 import React from "react";
 import players from "../players.json";
 import { LinkContainer } from "react-router-bootstrap";
-import axios from "axios";
-import hitter_leaders from "../hitter_leaders.json";
-import pitcher_leaders from "../pitcher_leaders.json";
-import user_leaders from "../user_leaders.json";
 import "./Leaderboard.css";
 
 class Leaderboard extends React.Component {
-  state = {
-    hitter_leaders: {},
-    pitcher_leaders: {},
-    user_leaders: []
-  };
-
-  componentDidMount() {
-    axios
-      .get("hitter_leaders.json")
-      .then(({ data }) => console.log(data))
-      .catch(() => {
-        this.state.hitter_leaders = hitter_leaders;
-      });
-    axios
-      .get("pitcher_leaders.json")
-      .then(({ data }) => console.log(data))
-      .catch(() => {
-        this.state.pitcher_leaders = pitcher_leaders;
-      });
-    axios
-      .get("user_leaders.json")
-      .then(({ data }) => console.log(data))
-      .catch(() => {
-        this.state.user_leaders = user_leaders;
-      });
-  }
-
   score(player) {
     return Math.max(
-      this.state.hitter_leaders[player.mlb]
-        ? parseInt(this.state.hitter_leaders[player.mlb])
+      this.props.hitter_leaders[player.mlb]
+        ? parseInt(this.props.hitter_leaders[player.mlb])
         : 0,
-      this.state.pitcher_leaders[player.mlb]
-        ? parseInt(this.state.pitcher_leaders[player.mlb])
+      this.props.pitcher_leaders[player.mlb]
+        ? parseInt(this.props.pitcher_leaders[player.mlb])
         : 0
     );
   }
@@ -50,16 +19,16 @@ class Leaderboard extends React.Component {
     return players
       .filter(
         p =>
-          this.state.hitter_leaders[p.mlb] || this.state.pitcher_leaders[p.mlb]
+          this.props.hitter_leaders[p.mlb] || this.props.pitcher_leaders[p.mlb]
       )
       .sort((a, b) => (this.score(a) > this.score(b) ? -1 : 1));
   }
 
   sortedUsers() {
-    var current_user = this.state.user_leaders.find(
+    var current_user = this.props.user_leaders.find(
       u => u.sub === this.props.sub
     );
-    var users = this.state.user_leaders.sort((a, b) =>
+    var users = this.props.user_leaders.sort((a, b) =>
       a.score > b.score ? -1 : 1
     );
     var rank = 1;

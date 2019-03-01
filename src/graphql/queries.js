@@ -9,13 +9,6 @@ export const getMyPicks = `query GetMyPicks {
 }
 `;
 
-export const getLeaders = `query GetLeaders {
-  getLeaders {
-    userId
-    score
-  }
-}`;
-
 export const getMyProfile = `query GetMyProfile {
   getMyProfile {
     score
@@ -27,8 +20,7 @@ export const getMyProfile = `query GetMyProfile {
 }`;
 
 export const getUser = `query GetUser($id: String!) {
-  getMyProfile(id: $id) {
-    score
+  getUser(id: $id) {
     displayName
     twitterHandle
     facebookHandle

@@ -1,6 +1,6 @@
 import React from "react";
 import { BrowserRouter } from "react-router-dom";
-import "./App.css";
+import axios from "axios";
 
 //Amplify
 import Amplify, { API, Auth, graphqlOperation } from "aws-amplify";
@@ -14,6 +14,12 @@ import config from "./config";
 
 import { getMyProfile } from "./graphql/queries";
 import { updateProfile } from "./graphql/mutations";
+
+import hitter_leaders from "./hitter_leaders.json";
+import pitcher_leaders from "./pitcher_leaders.json";
+import user_leaders from "./user_leaders.json";
+
+import "./App.css";
 
 // Amplify init
 Amplify.configure({
@@ -55,6 +61,7 @@ class App extends React.Component {
       this
     );
     this.loginWithFacebook = this.loginWithFacebook.bind(this);
+    this.componentDidMount = this.componentDidMount.bind(this);
     this.handleFacebookLoginResponse = this.handleFacebookLoginResponse.bind(
       this
     );
@@ -70,7 +77,11 @@ class App extends React.Component {
       displayName: null,
       twitterHandle: null,
       facebookHandle: null
-    }
+    },
+    hitter_leaders: {},
+    pitcher_leaders: {},
+    user_leaders: [],
+    loading_leaders: true
   };
   handleUserSignIn = (profile, sub) => {
     this.setState({ needsProfile: false, isLoggedIn: true, profile, sub });
@@ -109,6 +120,52 @@ class App extends React.Component {
       });
     });
   };
+
+  getLeaderboards() {
+    var leaders_loaded = 0;
+    axios
+      .get("hitter_leaders.json")
+      .then(({ data }) => {
+        this.setState({ hitter_leaders: data });
+        if (++leaders_loaded === 3) {
+          this.setState({ loading_leaders: false });
+        }
+      })
+      .catch(() => {
+        this.setState({ hitter_leaders });
+        if (++leaders_loaded === 3) {
+          this.setState({ loading_leaders: false });
+        }
+      });
+    axios
+      .get("pitcher_leaders.json")
+      .then(({ data }) => {
+        this.setState({ pitcher_leaders: data });
+        if (++leaders_loaded === 3) {
+          this.setState({ loading_leaders: false });
+        }
+      })
+      .catch(() => {
+        this.setState({ pitcher_leaders });
+        if (++leaders_loaded === 3) {
+          this.setState({ loading_leaders: false });
+        }
+      });
+    axios
+      .get("user_leaders.json")
+      .then(({ data }) => {
+        this.setState({ user_leaders: data });
+        if (++leaders_loaded === 3) {
+          this.setState({ loading_leaders: false });
+        }
+      })
+      .catch(() => {
+        this.setState({ user_leaders });
+        if (++leaders_loaded === 3) {
+          this.setState({ loading_leaders: false });
+        }
+      });
+  }
 
   async componentDidMount() {
     this.loadFacebookSDK();
@@ -165,6 +222,7 @@ class App extends React.Component {
     this.setState({ isAuthenticating: false });
 
     await waitForInit();
+    await this.getLeaderboards();
     this.setState({ isLoading: false });
   }
 
@@ -270,7 +328,11 @@ class App extends React.Component {
       isLoading: this.state.isLoading,
       isReadonly: this.state.isReadonly,
       sub: this.state.sub,
-      profile: this.state.profile
+      profile: this.state.profile,
+      hitter_leaders: this.state.hitter_leaders,
+      pitcher_leaders: this.state.pitcher_leaders,
+      user_leaders: this.state.user_leaders,
+      loading_leaders: this.state.loading_leaders
     };
     return (
       <div className="App">

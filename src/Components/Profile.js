@@ -1,7 +1,8 @@
 import React from "react";
 import Amplify, { API, graphqlOperation } from "aws-amplify";
+import awsconfig from "../aws-exports";
 import { Form, Button } from "react-bootstrap";
-import { getMyProfile } from "../graphql/queries";
+import { getMyProfile, getUser } from "../graphql/queries";
 import { updateProfile } from "../graphql/mutations";
 
 class Profile extends React.Component {
@@ -13,6 +14,7 @@ class Profile extends React.Component {
 
   state = {
     profile: {
+      sub: null,
       displayName: null,
       twitterHandle: null,
       facebookHandle: null
@@ -21,17 +23,29 @@ class Profile extends React.Component {
       displayName: null,
       twitterHandle: null,
       facebookHandle: null
-    }
+    },
+    loading_profile: true
   };
 
   componentDidMount() {
-    this.getMyProfile();
+    this.getProfile();
+  }
+
+  componentWillUnmount() {
+    this.setState({
+      profile: {
+        sub: null,
+        displayName: null,
+        twitterHandle: null,
+        facebookHandle: null
+      }
+    });
   }
 
   componentDidUpdate(nextProps, nextState) {
     if (nextProps.sub !== this.props.sub) {
       // sub was just updated
-      this.getMyProfile();
+      this.getProfile();
     }
   }
 
@@ -43,26 +57,46 @@ class Profile extends React.Component {
     });
   }
 
-  async getMyProfile() {
+  async getProfile() {
     if (
       this.props &&
       this.props.sub &&
       this.props.match &&
-      this.props.match.params &&
-      this.props.match.params.id === this.props.sub.substring(10)
+      this.props.match.params
     ) {
-      // Only get my profile if I'm looking at my own
-      var { data } = await API.graphql(graphqlOperation(getMyProfile));
-      console.log(data.getMyProfile);
-      if (data.getMyProfile) {
-        var profile = {
-          displayName: data.getMyProfile.displayName,
-          twitterHandle: data.getMyProfile.twitterHandle,
-          facebookHandle: data.getMyProfile.facebookHandle
-        };
-        this.setState({ profile: profile });
-        this.setState({ serverProfile: profile });
+      if (this.props.match.params.id === this.props.sub.substring(10)) {
+        // Only get my profile if I'm looking at my own
+        var { data } = await API.graphql(graphqlOperation(getMyProfile));
+        console.log(data.getMyProfile);
+        if (data.getMyProfile) {
+          var profile = {
+            sub: this.props.match.params.id,
+            displayName: data.getMyProfile.displayName,
+            twitterHandle: data.getMyProfile.twitterHandle,
+            facebookHandle: data.getMyProfile.facebookHandle
+          };
+          this.setState({
+            profile,
+            serverProfile: profile
+          });
+        }
+      } else {
+        var { data } = await API.graphql(
+          graphqlOperation(getUser, {
+            id: awsconfig.aws_project_region + ":" + this.props.match.params.id
+          })
+        );
+        if (data && data.getUser) {
+          var profile = {
+            sub: this.props.match.params.id,
+            displayName: data.getUser.displayName,
+            twitterHandle: data.getUser.twitterHandle,
+            facebookHandle: data.getUser.facebookHandle
+          };
+          this.setState({ profile });
+        }
       }
+      this.setState({ loading_profile: false });
     }
   }
 
@@ -86,7 +120,7 @@ class Profile extends React.Component {
 
   renderUpdateButton() {
     var dirty = false;
-    Object.keys(this.state.profile).forEach(key => {
+    Object.keys(this.state.serverProfile).forEach(key => {
       if (this.state.profile[key] !== this.state.serverProfile[key]) {
         dirty = true;
       }
@@ -150,9 +184,56 @@ class Profile extends React.Component {
         </div>
       );
     } else {
+      var sorted_user_leaders = this.props.user_leaders.sort((a, b) =>
+        a.score > b.score ? -1 : 1
+      );
+      var userIdx = sorted_user_leaders.findIndex(
+        u =>
+          u.sub ===
+          awsconfig.aws_project_region + ":" + this.props.match.params.id
+      );
       return (
         <div className="container text-center">
-          <h1>{this.state.displayName}</h1>
+          <h1>
+            {this.props.loading_leaders || this.state.loading_profile
+              ? ""
+              : this.state.profile.displayName
+              ? this.state.profile.displayName
+              : this.props.match.params.id}
+          </h1>
+          <h2>
+            Score:{" "}
+            {sorted_user_leaders && userIdx > -1 && sorted_user_leaders[userIdx]
+              ? sorted_user_leaders[userIdx].score
+              : 0}
+          </h2>
+          {userIdx > -1 ? <h2>Rank: {userIdx + 1} </h2> : ""}
+          {this.state.profile.twitterHandle ? (
+            <p>
+              <a
+                target="_new"
+                href={"https://twitter.com/" + this.state.profile.twitterHandle}
+              >
+                @{this.state.profile.twitterHandle}
+              </a>
+            </p>
+          ) : (
+            ""
+          )}
+          {this.state.profile.facebookHandle ? (
+            <p>
+              <a
+                target="_new"
+                href={
+                  "https://facebook.com/" + this.state.profile.facebookHandle
+                }
+              >
+                @{this.state.profile.facebookHandle}
+              </a>
+            </p>
+          ) : (
+            ""
+          )}
         </div>
       );
     }
