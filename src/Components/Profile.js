@@ -24,7 +24,7 @@ class Profile extends React.Component {
       twitterHandle: null,
       facebookHandle: null
     },
-    loading_profile: true
+    loading_profile: false
   };
 
   componentDidMount() {
@@ -45,6 +45,7 @@ class Profile extends React.Component {
   componentDidUpdate(nextProps, nextState) {
     if (nextProps.sub !== this.props.sub) {
       // sub was just updated
+      this.setState({ loading_profile: true });
       this.getProfile();
     }
   }
@@ -197,9 +198,7 @@ class Profile extends React.Component {
           <h1>
             {this.props.loading_leaders || this.state.loading_profile
               ? ""
-              : this.state.profile.displayName
-              ? this.state.profile.displayName
-              : this.props.match.params.id}
+              : sorted_user_leaders[userIdx].displayName}
           </h1>
           <h2>
             Score:{" "}
@@ -207,7 +206,13 @@ class Profile extends React.Component {
               ? sorted_user_leaders[userIdx].score
               : 0}
           </h2>
-          {userIdx > -1 ? <h2>Rank: {userIdx + 1} </h2> : ""}
+          {userIdx > -1 ? (
+            <h2>
+              Rank: {userIdx + 1} out of {this.props.user_leaders.length}
+            </h2>
+          ) : (
+            ""
+          )}
           {this.state.profile.twitterHandle ? (
             <p>
               <a
