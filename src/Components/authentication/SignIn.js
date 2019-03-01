@@ -3,7 +3,7 @@ import { API, Auth, graphqlOperation } from "aws-amplify";
 import { Form, Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import FacebookButton from "./FacebookButton";
-import awsconfig from "../../aws-exports";
+import config from "../../config";
 import { getMyProfile } from "../../graphql/queries";
 import "./SignIn.css";
 import "bootstrap/dist/css/bootstrap.css";
@@ -45,7 +45,8 @@ export default class SignIn extends Component {
           facebookHandle: data.getMyProfile.facebookHandle
         },
         user.storage[
-          "aws.cognito.identity-id." + awsconfig.aws_cognito_identity_pool_id
+          "aws.cognito.identity-id." +
+            config.awsconfig.aws_cognito_identity_pool_id
         ]
       );
     } catch (e) {
@@ -81,8 +82,21 @@ export default class SignIn extends Component {
           >
             Login
           </Button>
-          <Link to="/auth/create">create a user</Link>
           <br />
+          <Link className="btn btn-sm btn-primary" to="/auth/create">
+            create an account
+          </Link>
+          <br />
+          <div className="container">
+            <div className="row">
+              <div className="col-6 text-center">
+                <Link to="/terms">Terms of Service</Link>
+              </div>
+              <div className="col-6 text-center">
+                <Link to="/privacy">Privacy Policy</Link>
+              </div>
+            </div>
+          </div>
           <span>or</span>
           <br />
           <br />

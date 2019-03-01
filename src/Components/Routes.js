@@ -8,6 +8,8 @@ import MyPicks from "./MyPicks";
 import Leaderboard from "./Leaderboard";
 import Profile from "./Profile";
 import SignUp from "./authentication/SignUp";
+import Privacy from "./authentication/Privacy";
+import Terms from "./authentication/Terms";
 
 const ProtectedRoute = ({ render: C, props: childProps, ...rest }) => (
   <Route
@@ -77,6 +79,8 @@ const Routes = ({ childProps }) => (
       render={Profile}
       props={childProps}
     />
+    <ProppedRoute exact path="/privacy" render={Privacy} props={childProps} />
+    <ProppedRoute exact path="/terms" render={Terms} props={childProps} />
   </Switch>
 );
 
