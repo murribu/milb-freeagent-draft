@@ -1,6 +1,6 @@
 import React from "react";
 import Amplify, { API, graphqlOperation } from "aws-amplify";
-import awsconfig from "../aws-exports";
+import config from "../aws-exports";
 import { Form, Button } from "react-bootstrap";
 import { getMyProfile, getUser } from "../graphql/queries";
 import { updateProfile } from "../graphql/mutations";
@@ -84,7 +84,10 @@ class Profile extends React.Component {
       } else {
         var { data } = await API.graphql(
           graphqlOperation(getUser, {
-            id: awsconfig.aws_project_region + ":" + this.props.match.params.id
+            id:
+              config.awsconfig.aws_project_region +
+              ":" +
+              this.props.match.params.id
           })
         );
         if (data && data.getUser) {
@@ -191,7 +194,7 @@ class Profile extends React.Component {
       var userIdx = sorted_user_leaders.findIndex(
         u =>
           u.sub ===
-          awsconfig.aws_project_region + ":" + this.props.match.params.id
+          config.awsconfig.aws_project_region + ":" + this.props.match.params.id
       );
       return (
         <div className="container text-center">

@@ -21,10 +21,10 @@ class AboutComponent extends React.Component {
           I hope you're enjoying the MiLB Free Agent Draft 2019
         </p>
         <p>
-          During Spring Training, the stats will be from Spring Training. Once
-          the regular season starts, you will no longer be able to edit your
-          picks, and the stats will reset and only come from regular season MLB
-          games.
+          During Spring Training, you can edit your picks and the stats will be
+          from Spring Training. Once the regular season starts, you will no
+          longer be able to edit your picks, and the stats will reset and only
+          come from regular season MLB games.
         </p>
         <p>
           This project was developed by{" "}

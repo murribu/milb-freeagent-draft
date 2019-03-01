@@ -4,13 +4,11 @@ import axios from "axios";
 
 //Amplify
 import Amplify, { API, Auth, graphqlOperation } from "aws-amplify";
-import awsconfig from "./aws-exports";
+import config from "./config";
 
 // import HeaderLinks from "./Components/HeaderLinks";
 import TopNav from "./Components/TopNav";
 import Routes from "./Components/Routes";
-
-import config from "./config";
 
 import { getMyProfile } from "./graphql/queries";
 import { updateProfile } from "./graphql/mutations";
@@ -25,17 +23,17 @@ import "./App.css";
 Amplify.configure({
   Auth: {
     // REQUIRED - Amazon Cognito Identity Pool ID
-    userPoolId: awsconfig.aws_user_pools_id,
+    userPoolId: config.awsconfig.aws_user_pools_id,
     // REQUIRED - Amazon Cognito Region
-    region: awsconfig.aws_cognito_region,
+    region: config.awsconfig.aws_cognito_region,
     // OPTIONAL - Amazon Cognito User Pool ID
-    identityPoolId: awsconfig.aws_cognito_identity_pool_id,
+    identityPoolId: config.awsconfig.aws_cognito_identity_pool_id,
     // OPTIONAL - Amazon Cognito Web Client ID
-    userPoolWebClientId: awsconfig.aws_user_pools_web_client_id
+    userPoolWebClientId: config.awsconfig.aws_user_pools_web_client_id
   },
   API: {
-    aws_appsync_graphqlEndpoint: awsconfig.aws_appsync_graphqlEndpoint,
-    aws_appsync_region: awsconfig.aws_cognito_region,
+    aws_appsync_graphqlEndpoint: config.awsconfig.aws_appsync_graphqlEndpoint,
+    aws_appsync_region: config.awsconfig.aws_appsync_region,
     aws_appsync_authenticationType: "AWS_IAM"
   }
 });
@@ -268,7 +266,7 @@ class App extends React.Component {
               sub:
                 response.storage[
                   "aws.cognito.identity-id." +
-                    awsconfig.aws_cognito_identity_pool_id
+                    config.awsconfig.aws_cognito_identity_pool_id
                 ]
             });
           } else {
@@ -280,7 +278,7 @@ class App extends React.Component {
               },
               response.storage[
                 "aws.cognito.identity-id." +
-                  awsconfig.aws_cognito_identity_pool_id
+                  config.awsconfig.aws_cognito_identity_pool_id
               ]
             );
           }
