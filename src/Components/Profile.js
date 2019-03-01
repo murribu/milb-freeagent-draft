@@ -1,6 +1,5 @@
 import React from "react";
 import Amplify, { API, graphqlOperation } from "aws-amplify";
-import awsconfig from "../aws-exports";
 import { Form, Button } from "react-bootstrap";
 import { getMyProfile } from "../graphql/queries";
 import { updateProfile } from "../graphql/mutations";
@@ -52,6 +51,7 @@ class Profile extends React.Component {
       this.props.match.params &&
       this.props.match.params.id === this.props.sub.substring(10)
     ) {
+      // Only get my profile if I'm looking at my own
       var { data } = await API.graphql(graphqlOperation(getMyProfile));
       console.log(data.getMyProfile);
       if (data.getMyProfile) {

@@ -71,7 +71,7 @@ class TopNav extends React.Component {
                   (this.props.sub ? this.props.sub.substring(10) : "")
                 }
               >
-                {this.props.isLoggedIn ? this.props.username : ""}
+                {this.props.isLoggedIn ? this.props.displayName : ""}
               </NavLink>
             </span>
             {this.renderButton()}

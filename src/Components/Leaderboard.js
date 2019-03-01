@@ -1,5 +1,6 @@
 import React from "react";
 import players from "../players.json";
+import { LinkContainer } from "react-router-bootstrap";
 import axios from "axios";
 import hitter_leaders from "../hitter_leaders.json";
 import pitcher_leaders from "../pitcher_leaders.json";
@@ -98,7 +99,13 @@ class Leaderboard extends React.Component {
                 }
               >
                 <div className="col-1">{parseInt(u) + 1}</div>
-                <div className="col-9">{sortedUsers.users[u].sub}</div>
+                <div className="col-9">
+                  <LinkContainer
+                    to={"/profile/" + sortedUsers.users[u].sub.substring(10)}
+                  >
+                    <a href="#">{sortedUsers.users[u].displayName}</a>
+                  </LinkContainer>
+                </div>
                 <div className="col-2">{sortedUsers.users[u].score}</div>
               </div>
             ))}

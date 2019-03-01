@@ -1,9 +1,10 @@
 import React, { Component } from "react";
-import { Auth } from "aws-amplify";
+import { API, Auth, graphqlOperation } from "aws-amplify";
 import { Form, Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import FacebookButton from "./FacebookButton";
 import awsconfig from "../../aws-exports";
+import { getMyProfile } from "../../graphql/queries";
 import "./SignIn.css";
 import "bootstrap/dist/css/bootstrap.css";
 
@@ -34,11 +35,16 @@ export default class SignIn extends Component {
     this.setState({ isLoading: true });
 
     try {
-      var ret = await Auth.signIn(this.state.email, this.state.password);
-      console.log(ret);
+      var user = await Auth.signIn(this.state.email, this.state.password);
+      console.log(user);
+      var { data } = await API.graphql(graphqlOperation(getMyProfile));
       this.props.onUserSignIn(
-        ret.signInUserSession.idToken.payload.email,
-        ret.storage[
+        {
+          displayName: data.getMyProfile.displayName,
+          twitterHandle: data.getMyProfile.twitterHandle,
+          facebookHandle: data.getMyProfile.facebookHandle
+        },
+        user.storage[
           "aws.cognito.identity-id." + awsconfig.aws_cognito_identity_pool_id
         ]
       );

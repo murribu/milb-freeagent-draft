@@ -3,7 +3,7 @@ import { BrowserRouter } from "react-router-dom";
 import "./App.css";
 
 //Amplify
-import Amplify, { Auth } from "aws-amplify";
+import Amplify, { API, Auth, graphqlOperation } from "aws-amplify";
 import awsconfig from "./aws-exports";
 
 // import HeaderLinks from "./Components/HeaderLinks";
@@ -12,8 +12,27 @@ import Routes from "./Components/Routes";
 
 import config from "./config";
 
+import { getMyProfile } from "./graphql/queries";
+import { updateProfile } from "./graphql/mutations";
+
 // Amplify init
-Amplify.configure(awsconfig);
+Amplify.configure({
+  Auth: {
+    // REQUIRED - Amazon Cognito Identity Pool ID
+    userPoolId: awsconfig.aws_user_pools_id,
+    // REQUIRED - Amazon Cognito Region
+    region: awsconfig.aws_cognito_region,
+    // OPTIONAL - Amazon Cognito User Pool ID
+    identityPoolId: awsconfig.aws_cognito_identity_pool_id,
+    // OPTIONAL - Amazon Cognito Web Client ID
+    userPoolWebClientId: awsconfig.aws_user_pools_web_client_id
+  },
+  API: {
+    aws_appsync_graphqlEndpoint: awsconfig.aws_appsync_graphqlEndpoint,
+    aws_appsync_region: awsconfig.aws_cognito_region,
+    aws_appsync_authenticationType: "AWS_IAM"
+  }
+});
 
 function waitForInit() {
   return new Promise((res, rej) => {
@@ -43,13 +62,18 @@ class App extends React.Component {
 
   state = {
     isLoggedIn: false,
-    username: "",
     isAuthenticating: false,
     isReadonly: false,
-    sub: null
+    sub: null,
+    needsProfile: false,
+    profile: {
+      displayName: null,
+      twitterHandle: null,
+      facebookHandle: null
+    }
   };
-  handleUserSignIn = (username, sub = null) => {
-    this.setState({ isLoggedIn: true, username, sub });
+  handleUserSignIn = (profile, sub) => {
+    this.setState({ needsProfile: false, isLoggedIn: true, profile, sub });
   };
   handleUserSignOut = () => {
     Auth.signOut()
@@ -66,8 +90,21 @@ class App extends React.Component {
             scope: "public_profile,email"
           });
         } else {
-          console.log("Good to see you, " + response.name + ".", response);
-          self.handleUserSignIn(response.name.split(" ")[0], self.state.sub);
+          if (self.state.needsProfile) {
+            API.graphql(
+              graphqlOperation(updateProfile, { displayName: response.name })
+            ).then(({ data }) =>
+              self.handleUserSignIn(
+                {
+                  displayName: data.updateProfile.displayName,
+                  twitterHandle: data.updateProfile.twitterHandle,
+                  facebookHandle: data.updateProfile.facebookHandle
+                },
+                self.state.sub
+              )
+            );
+          }
+          // console.log("Good to see you, " + response.name + ".", response);
         }
       });
     });
@@ -80,15 +117,44 @@ class App extends React.Component {
     try {
       user = await Auth.currentAuthenticatedUser();
       console.log("Auth.currentAuthenticatedUser", user);
-      if (user && user.attributes && user.attributes.email) {
-        this.handleUserSignIn(
-          user.attributes.email,
-          user.storage[
-            "aws.cognito.identity-id." + awsconfig.aws_cognito_identity_pool_id
-          ]
-        );
+      // get my profile
+      var { data } = await API.graphql(graphqlOperation(getMyProfile));
+      console.log(data);
+      if (!data || !data.getMyProfile) {
+        // if I don't have a profile, create one
+        if (user && user.attributes && user.attributes.email) {
+          // username / password login
+          var { data } = await API.graphql(
+            graphqlOperation(updateProfile, {
+              displayName: user.attributes.email.substring(
+                0,
+                user.attributes.email.substring.indexOf("@")
+              )
+            })
+          );
+          this.setState({
+            profile: {
+              displayName: data.updateProfile.displayName,
+              twitterHandle: data.updateProfile.twitterHandle,
+              facebookHandle: data.updateProfile.facebookHandle
+            },
+            needsProfile: false
+          });
+        } else {
+          // facebook login
+          this.setState({ needsProfile: true });
+          this.getFacebookUserInfo();
+        }
       } else {
-        this.getFacebookUserInfo();
+        // I've got a profile
+        this.handleUserSignIn(
+          {
+            displayName: data.getMyProfile.displayName,
+            twitterHandle: data.getMyProfile.twitterHandle,
+            facebookHandle: data.getMyProfile.facebookHandle
+          },
+          user.id
+        );
       }
     } catch (e) {
       if (e !== "not authenticated") {
@@ -136,15 +202,35 @@ class App extends React.Component {
     Auth.federatedSignIn("facebook", { token, expires_at }, user)
       .then(response => {
         console.log(response);
-        this.setState({
-          isLoading: false,
-          sub:
-            response.storage[
-              "aws.cognito.identity-id." +
-                awsconfig.aws_cognito_identity_pool_id
-            ]
+        API.graphql(graphqlOperation(getMyProfile)).then(({ data }) => {
+          if (!data || !data.getMyProfile) {
+            // needs a profile
+            this.setState({
+              needsProfile: true,
+              sub:
+                response.storage[
+                  "aws.cognito.identity-id." +
+                    awsconfig.aws_cognito_identity_pool_id
+                ]
+            });
+          } else {
+            this.handleUserSignIn(
+              {
+                displayName: data.getMyProfile.displayName,
+                twitterHandle: data.getMyProfile.twitterHandle,
+                facebookHandle: data.getMyProfile.facebookHandle
+              },
+              response.storage[
+                "aws.cognito.identity-id." +
+                  awsconfig.aws_cognito_identity_pool_id
+              ]
+            );
+          }
+          this.setState({
+            isLoading: false
+          });
+          this.getFacebookUserInfo();
         });
-        this.getFacebookUserInfo();
       })
       .catch(e => {
         this.setState({ isLoading: false });
@@ -183,14 +269,15 @@ class App extends React.Component {
       loginWithFacebook: this.loginWithFacebook,
       isLoading: this.state.isLoading,
       isReadonly: this.state.isReadonly,
-      sub: this.state.sub
+      sub: this.state.sub,
+      profile: this.state.profile
     };
     return (
       <div className="App">
         <TopNav
           isLoggedIn={this.state.isLoggedIn}
           handleUserSignOut={this.handleUserSignOut}
-          username={this.state.username}
+          displayName={this.state.profile.displayName}
           sub={this.state.sub}
         />
         <br />
