@@ -191,6 +191,7 @@ class App extends React.Component {
           isLoggedIn={this.state.isLoggedIn}
           handleUserSignOut={this.handleUserSignOut}
           username={this.state.username}
+          sub={this.state.sub}
         />
         <br />
         <Routes childProps={childProps} />

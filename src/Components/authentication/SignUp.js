@@ -66,6 +66,7 @@ export default class SignUp extends Component {
         this.state.email,
         this.state.confirmationCode
       );
+      console.log(confirmResponse);
       var signInResponse = await Auth.signIn(
         this.state.email,
         this.state.password

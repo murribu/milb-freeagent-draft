@@ -16,3 +16,12 @@ export const removePick = `mutation RemovePick($playerId:String!) {
   }
 }
 `;
+
+export const updateProfile = `
+mutation UpdateProfile($displayName:String, $twitterHandle: String, $facebookHandle: String) {
+  updateProfile(displayName: $displayName, twitterHandle: $twitterHandle, facebookHandle: $facebookHandle) {
+    twitterHandle
+    displayName
+    facebookHandle
+  }
+}`;

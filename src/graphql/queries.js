@@ -15,3 +15,22 @@ export const getLeaders = `query GetLeaders {
     score
   }
 }`;
+
+export const getMyProfile = `query GetMyProfile {
+  getMyProfile {
+    score
+    displayName
+    twitterHandle
+    facebookHandle
+    email
+  }
+}`;
+
+export const getUser = `query GetUser($id: String!) {
+  getMyProfile(id: $id) {
+    score
+    displayName
+    twitterHandle
+    facebookHandle
+  }
+}`;

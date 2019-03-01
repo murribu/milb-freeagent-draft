@@ -64,7 +64,15 @@ class TopNav extends React.Component {
           </Nav>
           <Form inline onSubmit={this.signOut}>
             <span className="mr-3">
-              {this.props.isLoggedIn ? "Welcome " + this.props.username : ""}
+              {this.props.isLoggedIn ? "Welcome " : ""}
+              <NavLink
+                to={
+                  "/profile/" +
+                  (this.props.sub ? this.props.sub.substring(10) : "")
+                }
+              >
+                {this.props.isLoggedIn ? this.props.username : ""}
+              </NavLink>
             </span>
             {this.renderButton()}
           </Form>

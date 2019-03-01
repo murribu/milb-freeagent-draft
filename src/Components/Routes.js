@@ -6,7 +6,7 @@ import HomeComponent from "./HomeComponent";
 import AboutComponent from "./AboutComponent";
 import MyPicks from "./MyPicks";
 import Leaderboard from "./Leaderboard";
-
+import Profile from "./Profile";
 import SignUp from "./authentication/SignUp";
 
 const ProtectedRoute = ({ render: C, props: childProps, ...rest }) => (
@@ -69,6 +69,12 @@ const Routes = ({ childProps }) => (
       exact
       path="/leaderboard"
       render={Leaderboard}
+      props={childProps}
+    />
+    <ProppedRoute
+      exact
+      path="/profile/:id"
+      render={Profile}
       props={childProps}
     />
   </Switch>
