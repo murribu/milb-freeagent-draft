@@ -2,10 +2,8 @@ import React from "react";
 import { Form, Button } from "react-bootstrap";
 import players from "../players.json";
 
-import AWSAppSyncClient from "aws-appsync";
 import Amplify, { API, graphqlOperation } from "aws-amplify";
 import config from "../config";
-import gql from "graphql-tag";
 import { getMyPicks } from "../graphql/queries";
 import { addPick, removePick } from "../graphql/mutations";
 
@@ -106,7 +104,6 @@ class MyPicks extends React.Component {
   }
 
   async getMyPicks() {
-    var self = this;
     this.setState({ loading: true });
     var { data } = await API.graphql(graphqlOperation(getMyPicks));
     console.log(data.getMyPicks);
@@ -168,7 +165,7 @@ class MyPicks extends React.Component {
     }
 
     try {
-      var { data } = await API.graphql(
+      await API.graphql(
         graphqlOperation(addPick, {
           playerId: e.currentTarget.attributes["data-player-id"].value,
           rank: ordinal
@@ -256,7 +253,7 @@ class MyPicks extends React.Component {
 
   async removePick(e) {
     try {
-      var { data } = await API.graphql(
+      await API.graphql(
         graphqlOperation(removePick, {
           playerId: e.currentTarget.attributes["data-player-id"].value
         })
@@ -275,7 +272,9 @@ class MyPicks extends React.Component {
       for (var p = 1; p <= 20; p++) {
         var pick = this.state.picks.find(pi => pi.rank === p);
         var player = pick
-          ? this.state.players.find(pl => pl.baseballamerica == pick.playerId)
+          ? this.state.players.find(
+              pl => parseInt(pl.baseballamerica) === parseInt(pick.playerId)
+            )
           : null;
         var elements = [];
         elements.push(<div key={p + "-1"} className="col-1" />);
