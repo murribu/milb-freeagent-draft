@@ -82,22 +82,41 @@ class Profile extends React.Component {
           });
         }
       } else {
-        var { data } = await API.graphql(
-          graphqlOperation(getUser, {
-            id:
+        if (this.props.isLoggedIn) {
+          var { data } = await API.graphql(
+            graphqlOperation(getUser, {
+              id:
+                config.awsconfig.aws_project_region +
+                ":" +
+                this.props.match.params.id
+            })
+          );
+          if (data && data.getUser) {
+            var profile = {
+              sub: this.props.match.params.id,
+              displayName: data.getUser.displayName,
+              twitterHandle: data.getUser.twitterHandle,
+              facebookHandle: data.getUser.facebookHandle
+            };
+            this.setState({ profile });
+          }
+        } else {
+          // if you're not logged in, you get last night's data
+          var profile = this.props.user_leaders.find(
+            u =>
+              u.sub ===
               config.awsconfig.aws_project_region +
-              ":" +
-              this.props.match.params.id
-          })
-        );
-        if (data && data.getUser) {
-          var profile = {
-            sub: this.props.match.params.id,
-            displayName: data.getUser.displayName,
-            twitterHandle: data.getUser.twitterHandle,
-            facebookHandle: data.getUser.facebookHandle
-          };
-          this.setState({ profile });
+                ":" +
+                this.props.match.params.id
+          );
+          if (profile) {
+            this.setState({
+              sub: this.props.match.params.id,
+              displayName: profile.displayName,
+              twitterHandle: profile.twitterHandle,
+              facebookHandle: profile.facebookHandle
+            });
+          }
         }
       }
       this.setState({ loading_profile: false });
