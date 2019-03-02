@@ -21,7 +21,8 @@ class Leaderboard extends React.Component {
         p =>
           this.props.hitter_leaders[p.mlb] || this.props.pitcher_leaders[p.mlb]
       )
-      .sort((a, b) => (this.score(a) > this.score(b) ? -1 : 1));
+      .sort((a, b) => (this.score(a) > this.score(b) ? -1 : 1))
+      .slice(0, 19);
   }
 
   sortedUsers() {
@@ -92,8 +93,8 @@ class Leaderboard extends React.Component {
             <h2>Player Leaders</h2>
             <div className="container">
               <div className="row">
-                <div className="col-6">Name</div>
-                <div className="col-6">Score</div>
+                <div className="col-8">Name</div>
+                <div className="col-4">Score</div>
               </div>
               {Object.keys(sortedPlayers).map(key => (
                 <div key={key} className="row">

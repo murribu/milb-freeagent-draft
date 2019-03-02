@@ -1,6 +1,6 @@
 import React from "react";
 import Amplify, { API, graphqlOperation } from "aws-amplify";
-import config from "../aws-exports";
+import config from "../config";
 import { Form, Button } from "react-bootstrap";
 import { getMyProfile, getUser } from "../graphql/queries";
 import { updateProfile } from "../graphql/mutations";

@@ -1,7 +1,8 @@
 import React, { Component } from "react";
 import { Form } from "react-bootstrap";
-import { Auth } from "aws-amplify";
+import { API, Auth, graphqlOperation } from "aws-amplify";
 import LoaderButton from "../LoaderButton";
+import { updateProfile } from "../../graphql/mutations";
 import "./SignIn.css";
 
 export default class SignUp extends Component {
@@ -71,9 +72,20 @@ export default class SignUp extends Component {
         this.state.email,
         this.state.password
       );
-
+      var { data } = await API.graphql(
+        graphqlOperation(updateProfile, {
+          displayName: this.state.email.substring(
+            0,
+            this.state.email.indexOf("@")
+          )
+        })
+      );
       this.props.onUserSignIn(
-        this.state.email,
+        {
+          displayName: data.updateProfile.displayName,
+          twitterHandle: data.updateProfile.twitterHandle,
+          facebookHandle: data.updateProfile.facebookHandle
+        },
         signInResponse.signInUserSession.accessToken.payload.sub
       );
       this.props.history.push("/");

@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { API, Auth, graphqlOperation } from "aws-amplify";
+import Amplify, { API, Auth, graphqlOperation } from "aws-amplify";
 import { Form, Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import FacebookButton from "./FacebookButton";
@@ -7,6 +7,25 @@ import config from "../../config";
 import { getMyProfile } from "../../graphql/queries";
 import "./SignIn.css";
 import "bootstrap/dist/css/bootstrap.css";
+
+// Amplify init
+Amplify.configure({
+  Auth: {
+    // REQUIRED - Amazon Cognito Identity Pool ID
+    userPoolId: config.awsconfig.aws_user_pools_id,
+    // REQUIRED - Amazon Cognito Region
+    region: config.awsconfig.aws_cognito_region,
+    // OPTIONAL - Amazon Cognito User Pool ID
+    identityPoolId: config.awsconfig.aws_cognito_identity_pool_id,
+    // OPTIONAL - Amazon Cognito Web Client ID
+    userPoolWebClientId: config.awsconfig.aws_user_pools_web_client_id
+  },
+  API: {
+    aws_appsync_graphqlEndpoint: config.awsconfig.aws_appsync_graphqlEndpoint,
+    aws_appsync_region: config.awsconfig.aws_appsync_region,
+    aws_appsync_authenticationType: "AWS_IAM"
+  }
+});
 
 export default class SignIn extends Component {
   constructor(props) {

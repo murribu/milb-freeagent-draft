@@ -122,7 +122,7 @@ class App extends React.Component {
   getLeaderboards() {
     var leaders_loaded = 0;
     axios
-      .get("hitter_leaders.json")
+      .get("/static/data/hitter_leaders.json")
       .then(({ data }) => {
         this.setState({ hitter_leaders: data });
         if (++leaders_loaded === 3) {
@@ -136,7 +136,7 @@ class App extends React.Component {
         }
       });
     axios
-      .get("pitcher_leaders.json")
+      .get("/static/data/pitcher_leaders.json")
       .then(({ data }) => {
         this.setState({ pitcher_leaders: data });
         if (++leaders_loaded === 3) {
@@ -150,7 +150,7 @@ class App extends React.Component {
         }
       });
     axios
-      .get("user_leaders.json")
+      .get("/static/data/user_leaders.json")
       .then(({ data }) => {
         this.setState({ user_leaders: data });
         if (++leaders_loaded === 3) {
@@ -183,7 +183,7 @@ class App extends React.Component {
             graphqlOperation(updateProfile, {
               displayName: user.attributes.email.substring(
                 0,
-                user.attributes.email.substring.indexOf("@")
+                user.attributes.email.indexOf("@")
               )
             })
           );
