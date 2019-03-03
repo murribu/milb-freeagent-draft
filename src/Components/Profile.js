@@ -103,7 +103,7 @@ class Profile extends React.Component {
           }
         } else {
           // if you're not logged in, you get last night's data
-          profile = this.props.user_leaders.find(
+          profile = this.props.user_leaders.leaders.find(
             u =>
               u.sub ===
               config.awsconfig.aws_project_region +
@@ -208,7 +208,7 @@ class Profile extends React.Component {
         </div>
       );
     } else {
-      var sorted_user_leaders = this.props.user_leaders.sort((a, b) =>
+      var sorted_user_leaders = this.props.user_leaders.leaders.sort((a, b) =>
         a.score > b.score ? -1 : 1
       );
       var userIdx = sorted_user_leaders.findIndex(
@@ -231,7 +231,8 @@ class Profile extends React.Component {
           </h2>
           {userIdx > -1 ? (
             <h2>
-              Rank: {userIdx + 1} out of {this.props.user_leaders.length}
+              Rank: {this.props.renderRank(userIdx, sorted_user_leaders)} out of{" "}
+              {this.props.user_leaders.leaders.length}
             </h2>
           ) : (
             ""

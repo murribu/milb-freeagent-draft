@@ -84,7 +84,9 @@ class Leaderboard extends React.Component {
                     : "")
                 }
               >
-                <div className="col-1">{parseInt(u) + 1}</div>
+                <div className="col-1">
+                  {this.props.renderRank(parseInt(u), sortedUsers.users)}
+                </div>
                 <div className="col-9">
                   <LinkContainer
                     to={"/profile/" + sortedUsers.users[u].sub.substring(10)}

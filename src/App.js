@@ -318,6 +318,15 @@ class App extends React.Component {
     });
   }
 
+  renderRank(u, sorted) {
+    for (var t = u - 1; t >= 0; t--) {
+      if (sorted[t].score > sorted[u].score) {
+        return t + 2;
+      }
+    }
+    return u + 1;
+  }
+
   render() {
     const childProps = {
       isLoggedIn: this.state.isLoggedIn,
@@ -331,7 +340,8 @@ class App extends React.Component {
       hitter_leaders: this.state.hitter_leaders,
       pitcher_leaders: this.state.pitcher_leaders,
       user_leaders: this.state.user_leaders,
-      loading_leaders: this.state.loading_leaders
+      loading_leaders: this.state.loading_leaders,
+      renderRank: this.renderRank
     };
     return (
       <div className="App">
