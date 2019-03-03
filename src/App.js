@@ -76,9 +76,9 @@ class App extends React.Component {
       twitterHandle: null,
       facebookHandle: null
     },
-    hitter_leaders: {},
-    pitcher_leaders: {},
-    user_leaders: [],
+    hitter_leaders: { updatedAt: "", leaders: {} },
+    pitcher_leaders: { updatedAt: "", leaders: {} },
+    user_leaders: { updatedAt: "", leaders: [] },
     loading_leaders: true
   };
   handleUserSignIn = (profile, sub) => {
@@ -179,7 +179,7 @@ class App extends React.Component {
         // if I don't have a profile, create one
         if (user && user.attributes && user.attributes.email) {
           // username / password login
-          var { data } = await API.graphql(
+          var response = await API.graphql(
             graphqlOperation(updateProfile, {
               displayName: user.attributes.email.substring(
                 0,
@@ -187,6 +187,7 @@ class App extends React.Component {
               )
             })
           );
+          data = response.data;
           this.setState({
             profile: {
               displayName: data.updateProfile.displayName,

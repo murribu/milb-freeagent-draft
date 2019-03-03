@@ -1,5 +1,5 @@
 import React from "react";
-import Amplify, { API, graphqlOperation } from "aws-amplify";
+import { API, graphqlOperation } from "aws-amplify";
 import config from "../config";
 import { Form, Button } from "react-bootstrap";
 import { getMyProfile, getUser } from "../graphql/queries";
@@ -83,7 +83,7 @@ class Profile extends React.Component {
         }
       } else {
         if (this.props.isLoggedIn) {
-          var { data } = await API.graphql(
+          var response = await API.graphql(
             graphqlOperation(getUser, {
               id:
                 config.awsconfig.aws_project_region +
@@ -91,8 +91,9 @@ class Profile extends React.Component {
                 this.props.match.params.id
             })
           );
+          data = response.data;
           if (data && data.getUser) {
-            var profile = {
+            profile = {
               sub: this.props.match.params.id,
               displayName: data.getUser.displayName,
               twitterHandle: data.getUser.twitterHandle,
@@ -102,7 +103,7 @@ class Profile extends React.Component {
           }
         } else {
           // if you're not logged in, you get last night's data
-          var profile = this.props.user_leaders.find(
+          profile = this.props.user_leaders.find(
             u =>
               u.sub ===
               config.awsconfig.aws_project_region +

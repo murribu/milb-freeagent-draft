@@ -1,16 +1,17 @@
 import React from "react";
 import players from "../players.json";
 import { LinkContainer } from "react-router-bootstrap";
+import moment from "moment";
 import "./Leaderboard.css";
 
 class Leaderboard extends React.Component {
   score(player) {
     return Math.max(
-      this.props.hitter_leaders[player.mlb]
-        ? parseInt(this.props.hitter_leaders[player.mlb])
+      this.props.hitter_leaders.leaders[player.mlb]
+        ? parseInt(this.props.hitter_leaders.leaders[player.mlb])
         : 0,
-      this.props.pitcher_leaders[player.mlb]
-        ? parseInt(this.props.pitcher_leaders[player.mlb])
+      this.props.pitcher_leaders.leaders[player.mlb]
+        ? parseInt(this.props.pitcher_leaders.leaders[player.mlb])
         : 0
     );
   }
@@ -19,17 +20,18 @@ class Leaderboard extends React.Component {
     return players
       .filter(
         p =>
-          this.props.hitter_leaders[p.mlb] || this.props.pitcher_leaders[p.mlb]
+          this.props.hitter_leaders.leaders[p.mlb] ||
+          this.props.pitcher_leaders.leaders[p.mlb]
       )
       .sort((a, b) => (this.score(a) > this.score(b) ? -1 : 1))
       .slice(0, 19);
   }
 
   sortedUsers() {
-    var current_user = this.props.user_leaders.find(
+    var current_user = this.props.user_leaders.leaders.find(
       u => u.sub === this.props.sub
     );
-    var users = this.props.user_leaders.sort((a, b) =>
+    var users = this.props.user_leaders.leaders.sort((a, b) =>
       a.score > b.score ? -1 : 1
     );
     var rank = 1;
@@ -48,11 +50,25 @@ class Leaderboard extends React.Component {
   render() {
     var sortedPlayers = this.sortedPlayers();
     var sortedUsers = this.sortedUsers();
+    var offset = new Date().getTimezoneOffset();
+    var usersUpdatedAt =
+      this.props.user_leaders && this.props.user_leaders.updatedAt
+        ? moment(this.props.user_leaders.updatedAt)
+            .subtract(offset, "minutes")
+            .fromNow()
+        : "";
+    var playersUpdatedAt =
+      this.props.hitter_leaders && this.props.hitter_leaders.updatedAt
+        ? moment(this.props.hitter_leaders.updatedAt)
+            .subtract(offset, "minutes")
+            .fromNow()
+        : "";
     return (
       <div className="container">
         <div className="row">
           <div className="col-md-6 col-sm-12">
             <h2>User Leaders</h2>
+            <p>Last Updated: {usersUpdatedAt}</p>
             <div className="row">
               <div className="col-1">&nbsp;</div>
               <div className="col-9">Name</div>
@@ -91,6 +107,7 @@ class Leaderboard extends React.Component {
           </div>
           <div className="col-md-6 col-sm-12">
             <h2>Player Leaders</h2>
+            <p>Last Updated: {playersUpdatedAt}</p>
             <div className="container">
               <div className="row">
                 <div className="col-8">Name</div>
