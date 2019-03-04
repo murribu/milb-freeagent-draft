@@ -2,8 +2,10 @@ import React from "react";
 import { API, graphqlOperation } from "aws-amplify";
 import config from "../config";
 import { Form, Button } from "react-bootstrap";
-import { getMyProfile, getUser } from "../graphql/queries";
+import { Link } from "react-router-dom";
+import { getMyProfile, getUser, getUserPicks } from "../graphql/queries";
 import { updateProfile } from "../graphql/mutations";
+import players from "../players.json";
 
 class Profile extends React.Component {
   constructor(props) {
@@ -24,7 +26,8 @@ class Profile extends React.Component {
       twitterHandle: null,
       facebookHandle: null
     },
-    loading_profile: false
+    loading_profile: false,
+    picks: []
   };
 
   componentDidMount() {
@@ -56,6 +59,25 @@ class Profile extends React.Component {
     this.setState({
       profile
     });
+  }
+
+  async getUserPicks() {
+    try {
+      var { data } = await API.graphql(
+        graphqlOperation(getUserPicks, {
+          id:
+            config.awsconfig.aws_project_region +
+            ":" +
+            this.props.match.params.id
+        })
+      );
+      console.log(data.getUserPicks);
+      if (data.getUserPicks) {
+        this.setState({ picks: data.getUserPicks });
+      }
+    } catch (e) {
+      console.log("error", e);
+    }
   }
 
   async getProfile() {
@@ -101,6 +123,7 @@ class Profile extends React.Component {
             };
             this.setState({ profile });
           }
+          await this.getUserPicks();
         } else {
           // if you're not logged in, you get last night's data
           profile = this.props.user_leaders.leaders.find(
@@ -140,6 +163,17 @@ class Profile extends React.Component {
     } catch (e) {
       console.log(e);
     }
+  }
+
+  playersWithStats() {
+    return players.map(p => {
+      var score =
+        this.props.hitter_leaders.leaders[p.mlb] ||
+        this.props.pitcher_leaders.leaders[p.mlb];
+      var ret = p;
+      p.score = score;
+      return ret;
+    });
   }
 
   renderUpdateButton() {
@@ -205,6 +239,9 @@ class Profile extends React.Component {
           <div className="row m-5">
             <div className="col-12">{this.renderUpdateButton()}</div>
           </div>
+          <div className="row m-5">
+            <Link to="/picks">My picks</Link>
+          </div>
         </div>
       );
     } else {
@@ -216,6 +253,23 @@ class Profile extends React.Component {
           u.sub ===
           config.awsconfig.aws_project_region + ":" + this.props.match.params.id
       );
+      var picks = [];
+      var playersWithStats = this.playersWithStats();
+
+      for (var rank = 1; rank <= 20; rank++) {
+        var pick = this.state.picks.find(
+          p => parseInt(p.rank) === parseInt(rank)
+        );
+        var player = playersWithStats.find(pl =>
+          pick
+            ? parseInt(pl.baseballamerica) === parseInt(pick.playerId)
+            : false
+        );
+        if (pick && player) {
+          pick.player = player;
+        }
+        picks.push(pick);
+      }
       return (
         <div className="container text-center">
           <h1>
@@ -260,6 +314,41 @@ class Profile extends React.Component {
                 @{this.state.profile.facebookHandle}
               </a>
             </p>
+          ) : (
+            ""
+          )}
+          {this.state.picks.length > 0 ? (
+            <div className="container mt-5">
+              <h4>Picks</h4>
+              <div className="row">
+                <div className="col-lg-4 col-md-3 col-1">&nbsp;</div>
+                <div className="col-1">Rank</div>
+                <div className="col-lg-2 col-md-4 col-7">Name</div>
+                <div className="col-1">Score</div>
+                <div className="col-lg-4 col-md-3 col-1">&nbsp;</div>
+              </div>
+              {Object.keys(picks).map(key => (
+                <div className="row" key={key}>
+                  <div className="col-lg-4 col-md-3 col-1">&nbsp;</div>
+                  <div className="col-1">{parseInt(key) + 1}</div>
+                  <div className="col-lg-2 col-md-4 col-7">
+                    {picks[key] && picks[key].player
+                      ? picks[key].player.first_name +
+                        " " +
+                        picks[key].player.last_name
+                      : ""}
+                  </div>
+                  <div className="col-1">
+                    {picks[key] && picks[key].player
+                      ? picks[key].player.score
+                        ? picks[key].player.score
+                        : 0
+                      : ""}
+                  </div>
+                  <div className="col-lg-4 col-md-3 col-1">&nbsp;</div>
+                </div>
+              ))}
+            </div>
           ) : (
             ""
           )}

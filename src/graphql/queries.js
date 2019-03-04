@@ -26,3 +26,10 @@ export const getUser = `query GetUser($id: String!) {
     facebookHandle
   }
 }`;
+
+export const getUserPicks = `query GetUserPicks($id: String!) {
+  getUserPicks(id: $id) {
+    playerId
+    rank
+  }
+}`;
