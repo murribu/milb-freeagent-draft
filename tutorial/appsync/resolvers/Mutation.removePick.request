@@ -1,0 +1,10 @@
+{
+    "version" : "2017-02-28",
+    "operation" : "DeleteItem",
+    "key" : {
+        ## If your table's hash key is not named 'id', update it here. **
+        "userId" : {"S": "$ctx.identity.cognitoIdentityId"},
+        ## If your table has a sort key, add it as an item here. **
+        "playerId" : { "S" : "${ctx.args.playerId}" }
+    }
+}
