@@ -201,7 +201,7 @@ class Profile extends React.Component {
       this.props.match.params.id === this.props.sub.substring(10)
     ) {
       return (
-        <div className="container text-center m-5">
+        <div className="container text-center mt-5">
           <h1>Your profile</h1>
           <div className="row m-5">
             <div className="col-12">
