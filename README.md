@@ -23,9 +23,9 @@ First set up your AWS environment. I may try to squeeze all of this into a Cloud
 - [Sign up for AWS](https://aws.amazon.com/Sign-Up‎)
 - [Create two DynamoDB tables](https://console.aws.amazon.com/dynamodb/home?region=us-east-1)
   - picks
-    ![Image of Creating Picks Table](tutorial/dynamodb/01_create_picks.table.png)
+    ![Image of Creating Picks Table](tutorial/dynamodb/01_create_picks_table.png "Picks Table")
   - users
-    ![Image of Creating Users Table](tutorial/dynamodb/02_create_users.table.png)
+    ![Image of Creating Users Table](tutorial/dynamodb/02_create_users_table.png "Users Table")
 
 ## AppSync
 
