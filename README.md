@@ -169,8 +169,10 @@ However, keep in mind that you need to change your `src/config.js` file to your 
   ![Amplify Init](tutorial/amplify_/01_init.png)
 - `amplify add hosting`
   ![Add Hosting](tutorial/amplify_/02_hosting.png)
+  
   I chose "Prod" because in order to have "Login with Facebook," your site must have an ssl (https).
 - `amplify publish`
+  
   ![Publish](tutorial/amplify_/03_publish.png)
 
 ### Register a domain name
