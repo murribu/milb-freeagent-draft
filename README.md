@@ -65,7 +65,6 @@ I may try to squeeze all of the AWS stuff into a Cloudformation Template at some
 
 ## DynamoDB
 
-- [Sign up for AWS](https://aws.amazon.com/Sign-Up‎)
 - [Create two DynamoDB tables](https://console.aws.amazon.com/dynamodb/home?region=us-east-1)
   - picks
     ![Image of Creating Picks Table](tutorial/dynamodb/01_create_picks_table.png "Picks Table")
