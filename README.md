@@ -30,6 +30,7 @@ I may try to squeeze all of the AWS stuff into a Cloudformation Template at some
 - Copy your facebookID into your `src/config.js` file
 - You can also use that same blog post to guide you through setting up your Cognito Federated Identity Pool (but stop reading when it tells you to edit your code)
 - Copy your Identity Pool ID into your `src/config.js` file
+- Also, make a note of the Identity Pool's "Authenticated Role" as you're entering the Authentication providers
 
 ## Cognito
 
@@ -105,6 +106,43 @@ I may try to squeeze all of the AWS stuff into a Cloudformation Template at some
       - getMyProfile ([request](tutorial/appsync/resolvers/Query.getMyProfile.request), [response](tutorial/appsync/resolvers/Query.getMyProfile.response))
       - getUser ([request](tutorial/appsync/resolvers/Query.getUser.request), [response](tutorial/appsync/resolvers/Query.getUser.response))
       - getUserPicks ([request](tutorial/appsync/resolvers/Query.getUserPicks.request), [response](tutorial/appsync/resolvers/Query.getUserPicks.response))
+
+- Get the API's ID
+  - Click on "AWS AppSync"
+  - There will be an alphanumeric ID under the name of your API. Save that for the next step.
+
+### IAM
+
+- Go to [IAM](https://console.aws.amazon.com/iam/home?region=us-east-1#/home)
+- Click on Policies
+- Click "Create Policy"
+- Click "JSON"
+- Enter something like this:
+
+```
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "VisualEditor0",
+            "Effect": "Allow",
+            "Action": "appsync:GraphQL",
+            "Resource": [
+                "arn:aws:appsync:us-east-1:123456789123:apis/abcdefghijklmnopqrstuvwxyz/graphql/*",
+                "arn:aws:appsync:*:*:apis/*/types/*/fields/*"
+            ]
+        }
+    ]
+}
+```
+
+- Replace `123456789123` with your AWS Account Number. And replace `abcdefghijklmnopqrstuvwxyz` with your API's alphanumeric ID
+- Click "Review Policy" and give it a meaningful name. Mine was `MilbFreeAgentAppSyncAccess`
+- Click "Create Policy"
+- Click on Roles
+- Use the search box to find the Authenticated Role that you saw on your Identity Pool earlier and click on it.
+- Click "Attach Policies"
+- Search for the policy that you just created and click "Attach policy"
 
 ## Local Dev
 
