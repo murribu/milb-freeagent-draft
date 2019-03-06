@@ -16,7 +16,7 @@ This was a fun excuse for me to further my studies in the following technologies
 
 # To launch this project
 
-First set up your AWS environment. I may try to squeeze all of this into a Cloudformation Template at some point. But for now, here are the instructions.
+I may try to squeeze all of the AWS stuff into a Cloudformation Template at some point. But for now, here are the instructions.
 
 ## Code
 
@@ -33,7 +33,6 @@ First set up your AWS environment. I may try to squeeze all of this into a Cloud
 
 ## Cognito
 
-- You will also need a User Pool
 - Go to [Cognito](https://console.aws.amazon.com/cognito/home?region=us-east-1#)
 - Create a new User Pool
 
