@@ -231,10 +231,6 @@ However, keep in mind that you need to change your `src/config.js` file to your 
 - In the "Alias Target:" input box, find your Cloudfront Distribution and select it
 - Click "Create"
 
------
-
-Once your DNS propogation has happened, you should be able to visit your newly minted website at the domain that you registered, with an https in front of it. You should be able to create an account by logging in via facebook - or by entering a username and password.
-
 ### Lambda
 
 I'm leaving out the Lambdas (and Cloudwatch Events that call those Lambdas) which process the stats for this project. Just know that they create three files and store them in the S3 bucket where the static site is hosted.
@@ -244,6 +240,12 @@ I'm leaving out the Lambdas (and Cloudwatch Events that call those Lambdas) whic
 - static/data/pitcher_leaders.json
 
 You can visit https://minordraft.ml/leaderboard and view those files coming across in the Network tab of your Dev Tools of choice - if you want to see their structure.
+
+-----
+
+# That's it!
+
+Once your DNS propogation has happened, you should be able to visit your newly minted website at the domain that you registered, with an https in front of it. You should be able to create an account by logging in via facebook - or by entering a username and password.
 
 -----
 
