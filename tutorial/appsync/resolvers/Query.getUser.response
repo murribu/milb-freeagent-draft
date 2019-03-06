@@ -1,0 +1,3 @@
+## Pass back the result from DynamoDB. **
+#set( $ret = {"id": $ctx.result.id, "twitterHandle": $ctx.result.twitterHandle, "facebookHandle": $ctx.result.facebookHandle, "score": $ctx.result.score, "displayName": $ctx.result.displayName} )
+$util.toJson($ret)

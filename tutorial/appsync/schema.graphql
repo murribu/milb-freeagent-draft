@@ -1,0 +1,37 @@
+type Mutation {
+  addPick(playerId: String!, rank: Int!): Pick
+  removePick(playerId: String!): Pick
+  updateProfile(
+    displayName: String
+    twitterHandle: String
+    facebookHandle: String
+  ): User
+}
+
+type Pick {
+  createdAt: AWSDateTime
+  playerId: String!
+  rank: Int!
+  userId: String!
+}
+
+type Query {
+  getMyPicks: [Pick]
+  getMyProfile: User
+  getUser(id: String): User
+  getUserPicks(id: String): [Pick]
+}
+
+type User {
+  id: String!
+  displayName: String
+  twitterHandle: String
+  facebookHandle: String
+  score: Int
+  email: String
+}
+
+schema {
+  query: Query
+  mutation: Mutation
+}
